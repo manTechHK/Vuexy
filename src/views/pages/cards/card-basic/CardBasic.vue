@@ -150,7 +150,7 @@ const isCardDetailsVisible = ref(false)
             />
           </div>
 
-          <VDivider :vertical="$vuetify.display.mdAndUp" />
+          <!-- <VDivider :vertical="$vuetify.display.mdAndUp" /> -->
 
           <div>
             <VCardItem>

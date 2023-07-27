@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { VForm } from 'vuetify/components/VForm'
 import type { LoginResponse } from '@/@fake-db/types'
+import { VNodeRenderer } from '@/@layouts/components/VNodeRenderer'
 import { useAppAbility } from '@/plugins/casl/useAppAbility'
-import AuthProvider from '@/views/pages/authentication/AuthProvider.vue'
 import axios from '@axios'
 import { useGenerateImageVariant } from '@core/composable/useGenerateImageVariant'
 import authV2LoginIllustrationBorderedDark from '@images/pages/auth-v2-login-illustration-bordered-dark.png'
@@ -11,9 +10,9 @@ import authV2LoginIllustrationDark from '@images/pages/auth-v2-login-illustratio
 import authV2LoginIllustrationLight from '@images/pages/auth-v2-login-illustration-light.png'
 import authV2MaskDark from '@images/pages/misc-mask-dark.png'
 import authV2MaskLight from '@images/pages/misc-mask-light.png'
-import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
 import { themeConfig } from '@themeConfig'
 import { emailValidator, requiredValidator } from '@validators'
+import { VForm } from 'vuetify/components/VForm'
 
 const authThemeImg = useGenerateImageVariant(authV2LoginIllustrationLight, authV2LoginIllustrationDark, authV2LoginIllustrationBorderedLight, authV2LoginIllustrationBorderedDark, true)
 
@@ -68,152 +67,125 @@ const onSubmit = () => {
 </script>
 
 <template>
-  <VRow
-    no-gutters
-    class="auth-wrapper bg-surface"
-  >
-    <VCol
-      lg="8"
-      class="d-none d-lg-flex"
-    >
-      <div class="position-relative bg-background rounded-lg w-100 ma-8 me-0">
-        <div class="d-flex align-center justify-center w-100 h-100">
-          <VImg
-            max-width="505"
-            :src="authThemeImg"
-            class="auth-illustration mt-16 mb-2"
-          />
-        </div>
-
-        <VImg
-          :src="authThemeMask"
-          class="auth-footer-mask"
-        />
-      </div>
-    </VCol>
-
-    <VCol
-      cols="12"
-      lg="4"
-      class="auth-card-v2 d-flex align-center justify-center"
-    >
+  <div class="auth-wrapper d-flex align-center justify-center pa-4">
+    <div class="position-relative my-sm-16">
       <VCard
         flat
-        :max-width="500"
-        class="mt-12 mt-sm-0 pa-4"
+        width="750"
+        height="475"
+        class="d-flex flex-column mt-12 mt-sm-0 "
+        variant="tonal"
       >
-        <VCardText>
-          <VNodeRenderer
-            :nodes="themeConfig.app.logo"
-            class="mb-6"
-          />
-
-          <h5 class="text-h5 mb-1">
-            Welcome to <span class="text-capitalize"> {{ themeConfig.app.title }} </span>! 👋🏻
-          </h5>
-          <p class="mb-0">
-            Please sign-in to your account and start the adventure
-          </p>
-        </VCardText>
-        <VCardText>
-          <VAlert
-            color="primary"
-            variant="tonal"
-          >
-            <p class="text-caption mb-2">
-              Admin Email: <strong>admin@demo.com</strong> / Pass: <strong>admin</strong>
-            </p>
-            <p class="text-caption mb-0">
-              Client Email: <strong>client@demo.com</strong> / Pass: <strong>client</strong>
-            </p>
-          </VAlert>
-        </VCardText>
-        <VCardText>
-          <VForm
-            ref="refVForm"
-            @submit.prevent="onSubmit"
-          >
-            <VRow>
-              <!-- email -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="email"
-                  label="Email"
-                  type="email"
-                  autofocus
-                  :rules="[requiredValidator, emailValidator]"
-                  :error-messages="errors.email"
+          <VRow>
+            <VCol cols="5" >
+                <VImg
+                  cover
+                  width="300"
+                  height="600"
+                  :src="authThemeImg"
+                  class="auth-illustration align-start bg-error"
                 />
-              </VCol>
-
-              <!-- password -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="password"
-                  label="Password"
-                  :rules="[requiredValidator]"
-                  :type="isPasswordVisible ? 'text' : 'password'"
-                  :error-messages="errors.password"
-                  :append-inner-icon="isPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
-                  @click:append-inner="isPasswordVisible = !isPasswordVisible"
+            </VCol>
+            <VCol cols="7" md="6" class="">
+              <VCardText class="py-3">
+                <VNodeRenderer
+                  
+                  :nodes="themeConfig.app.logo"
+                  class="my-9 text-center"
                 />
+                
 
-                <div class="d-flex align-center flex-wrap justify-space-between mt-2 mb-4">
-                  <VCheckbox
-                    v-model="rememberMe"
-                    label="Remember me"
-                  />
-                  <RouterLink
-                    class="text-primary ms-2 mb-1"
-                    :to="{ name: 'forgot-password' }"
-                  >
-                    Forgot Password?
-                  </RouterLink>
-                </div>
-
-                <VBtn
-                  block
-                  type="submit"
+                <b class="text-h2 font-weight-black">登錄</b>
+              </VCardText>
+              <VCardText>
+                <VForm
+                  ref="refVForm"
+                  @submit.prevent="onSubmit"
                 >
-                  Login
-                </VBtn>
-              </VCol>
+                  <VRow>
+                    <!-- email -->
+                    <VCol cols="12">
+                      <AppTextField
+                        v-model="email"
+                        label="帳戶號碼"
+                        type="email"
+                        autofocus
+                        prepend-inner-icon="tabler-mail"
+                        :rules="[requiredValidator, emailValidator]"
+                        :error-messages="errors.email"
+                      />
+                    </VCol>
 
-              <!-- create account -->
-              <VCol
-                cols="12"
-                class="text-center"
-              >
-                <span>New on our platform?</span>
-                <RouterLink
-                  class="text-primary ms-2"
-                  :to="{ name: 'register' }"
-                >
-                  Create an account
-                </RouterLink>
-              </VCol>
-              <VCol
-                cols="12"
-                class="d-flex align-center"
-              >
-                <VDivider />
-                <span class="mx-4">or</span>
-                <VDivider />
-              </VCol>
+                    <!-- password -->
+                    <VCol cols="12" >
+                      <AppTextField
+                        v-model="password"
+                        label="密碼"
+                        :rules="[requiredValidator]"
+                        :type="isPasswordVisible ? 'text' : 'password'"
+                        :error-messages="errors.password"
+                        prepend-inner-icon="tabler-lock"
+                        isPasswordVisible="false"
+                        class="mb-2"
+                      />
 
-              <!-- auth providers -->
-              <VCol
-                cols="12"
-                class="text-center"
-              >
-                <AuthProvider />
-              </VCol>
-            </VRow>
-          </VForm>
-        </VCardText>
+                      <RouterLink
+                        class="font-weight-black"
+                        :to=  "{name: 'register'}"
+                      >
+                        註冊
+                      </RouterLink>
+                      <VRow>
+                        <VCol cols="6">
+                          <VBtn
+                            block
+                            class="mt-4"
+                            type="submit"
+                          >
+                            登錄
+                          </VBtn>
+                        </VCol>
+                        <VCol cols="6">
+                          <VBtn
+                            block
+                            class="mt-4 bg-secondary"
+                            type="submit"
+                          >
+                            取消
+                          </VBtn>
+                        </VCol>
+                      </VRow>
+                    </VCol>
+
+                    <!-- create account -->
+                    <!-- <VCol
+                      cols="12"
+                      class="text-center"
+                    >
+                      <span>New on our platform?</span>
+                      <RouterLink
+                        class="text-primary ms-2"
+                        :to="{ name: 'register' }"
+                      >
+                        Create an account
+                      </RouterLink>
+                    </VCol> -->
+
+                    <!-- auth providers -->
+                    <!-- <VCol
+                      cols="12"
+                      class="text-center"
+                    >
+                      <AuthProvider />
+                    </VCol> -->
+                  </VRow>
+                </VForm>
+              </VCardText>
+            </VCol>
+          </VRow>
       </VCard>
-    </VCol>
-  </VRow>
+    </div>
+  </div>
 </template>
 
 <style lang="scss">

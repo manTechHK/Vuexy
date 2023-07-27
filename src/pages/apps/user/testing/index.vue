@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import type { UserProperties } from '@/@fake-db/types'
 import { paginationMeta } from '@/@fake-db/utils'
 import AddNewUserDrawer from '@/views/apps/user/list/AddNewUserDrawer.vue'
 import { useUserListStore } from '@/views/apps/user/useUserListStore'
 import type { Options } from '@core/types'
 import { avatarText } from '@core/utils/formatters'
+import { VDataTableServer } from 'vuetify/labs/VDataTable'
 
 // 👉 Store
 const userListStore = useUserListStore()
@@ -219,7 +219,7 @@ const deleteUser = (id: number) => {
 
           <VCardText class="d-flex flex-wrap py-4 gap-4">
               
-              <div class="app-user-search-filter d-flex align-center flex-wrap gap-4">
+              <div class="app-user-search-filter d-flex align-end flex-wrap gap-4">
                   <!-- 👉 Search  -->
                   <div style="inline-size: 10rem;">
                     <AppTextField
@@ -239,14 +239,19 @@ const deleteUser = (id: number) => {
             </VBtn>
             
             <!-- 👉 Add user button -->
+            <div>
             <VBtn
             prepend-icon="tabler-plus"
             @click="isAddNewUserDrawerVisible = true"
             >
             Add New User
         </VBtn>
+      </div>
     </div>
-    <div class="d-flex gap-3 ">
+
+  <VSpacer/>
+
+    <div class="d-flex align-end align-bottom">
       <AppSelect
         :model-value="options.itemsPerPage"
         label="Accounts/page"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ThemeSwitcherTheme } from '@layouts/types'
+import type { ThemeSwitcherTheme } from '@layouts/types';
 
 const themes: ThemeSwitcherTheme[] = [
   {
@@ -9,6 +9,10 @@ const themes: ThemeSwitcherTheme[] = [
   {
     name: 'light',
     icon: 'tabler-sun-high',
+  },
+  {
+    name: 'warm',
+    icon: 'tabler-sun-low',
   },
   {
     name: 'dark',
