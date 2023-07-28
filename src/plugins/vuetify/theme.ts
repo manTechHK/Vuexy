@@ -124,9 +124,9 @@ const theme: VuetifyOptions['theme'] = {
     warm: {
       dark: false,
       colors: {
-        'primary': '#fBB917',
+        'primary': '#282c3c',
         'on-primary': '#fff',
-        'secondary': '#ffffff',
+        'secondary': '#f8bc1c',
         'on-secondary': '#fff',
         'success': '#28C76F',
         'on-success': '#fff',
@@ -135,7 +135,7 @@ const theme: VuetifyOptions['theme'] = {
         'warning': '#FF9F43',
         'on-warning': '#fff',
         'error': '#EA5455',
-        'background': '#F8F7FA',
+        'background': '#fff',
         'on-background': '#2F2B3D',
         'on-surface': '#2F2B3D',
         'grey-50': '#FAFAFA',

@@ -67,27 +67,27 @@ const onSubmit = () => {
 </script>
 
 <template>
-  <div class="auth-wrapper d-flex align-center justify-center pa-4">
+  <div class="auth-wrapper d-flex align-center justify-center pa-4 bg-secondary">
     <div class="position-relative my-sm-16">
       <VCard
         flat
         width="750"
         height="475"
         class="d-flex flex-column mt-12 mt-sm-0 "
-        variant="tonal"
+
       >
           <VRow>
-            <VCol cols="5" >
+            <VCol cols="5" class="pa-0 ma-0">
                 <VImg
                   cover
-                  width="300"
+                  width="400"
                   height="600"
-                  :src="authThemeImg"
+                  :src="authV2LoginIllustrationLight"
                   class="auth-illustration align-start bg-error"
                 />
             </VCol>
-            <VCol cols="7" md="6" class="">
-              <VCardText class="py-3">
+            <VCol cols="7" class="pl-0 pr-4">
+              <VCardText class="pb-2">
                 <VNodeRenderer
                   
                   :nodes="themeConfig.app.logo"
@@ -95,7 +95,12 @@ const onSubmit = () => {
                 />
                 
 
-                <b class="text-h2 font-weight-black">登錄</b>
+                <p 
+                class="text-grey-900 font-weight-black text-h4"
+                
+                >
+                  登錄
+                </p>
               </VCardText>
               <VCardText>
                 <VForm
@@ -104,7 +109,7 @@ const onSubmit = () => {
                 >
                   <VRow>
                     <!-- email -->
-                    <VCol cols="12">
+                    <VCol cols="12" class="pb-0">
                       <AppTextField
                         v-model="email"
                         label="帳戶號碼"
@@ -126,30 +131,34 @@ const onSubmit = () => {
                         :error-messages="errors.password"
                         prepend-inner-icon="tabler-lock"
                         isPasswordVisible="false"
-                        class="mb-2"
+
+                        class="mb-4"
                       />
 
                       <RouterLink
-                        class="font-weight-black"
+                        class="text-primary"
                         :to=  "{name: 'register'}"
+                        style="font-size:small"
                       >
                         註冊
                       </RouterLink>
-                      <VRow>
+                      <VRow class="">
                         <VCol cols="6">
                           <VBtn
                             block
-                            class="mt-4"
+                            color="primary"
+                            class="mt-4 text-white "
                             type="submit"
+                            style="font-size:small"
                           >
-                            登錄
+                          登錄
                           </VBtn>
                         </VCol>
                         <VCol cols="6">
                           <VBtn
                             block
-                            class="mt-4 bg-secondary"
-                            type="submit"
+                            class="mt-4 bg-grey-100 border"
+                            style="font-size:small"
                           >
                             取消
                           </VBtn>
@@ -190,6 +199,20 @@ const onSubmit = () => {
 
 <style lang="scss">
 @use "@core/scss/template/pages/page-auth.scss";
+.v-text-field--filled > .v-input__control > .v-input__slot {
+    background: #ffffff !important;
+    border: 1px solid rgba(0, 0, 0, 0.38) !important;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    transition: 0.2s;
+
+    &:focus, &:active {
+        border: 1px solid blue !important;
+    }
+    &:before, &:after {
+        display: none;
+    }
+}
 </style>
 
 <route lang="yaml">
