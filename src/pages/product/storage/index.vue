@@ -1,8 +1,13 @@
 <script setup lang="ts">  
+
+import AddBrokenProductHandler from '@/views/apps/product/storage/addBrokenProductHandler.vue'
+import { blankBrokenProduct } from '@/views/apps/product/storage/useBrokenProductForm'
 import { VDataTable } from 'vuetify/labs/VDataTable'
+
   const search = ref('')
   const productID = ref()
   const prodcutName = ref('')
+  const isBrokenProductHandlerSidebarActive = ref(false)
 
   const options = ref({ page: 1, itemsPerPage: 5, sortBy: [''], sortDesc: [false] })
 
@@ -10,6 +15,9 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
     name: string,
     id: number,
   }
+
+  const brokenProduct = ref(structuredClone(blankBrokenProduct))
+
 
   const TableData=[
     {latestStockingDate: '0', latestStockingTime: '1', latestStockingCost: '2', latestMinStockingCost: '3', latestPrice: '4', stocks: '5', defected: '6', stockingDate: '7', stockingTime: '8', stockingCost: '9', minStockingCost: '10', price: '11', stockingVolumn: '12', supplier:'13', avgStockingPrice:'14'},
@@ -21,8 +29,8 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
     {title: '最新入貨價錢', key: 'latestStockingCost', },
     {title: '最新最低價錢', key: 'latestMinStockingCost', },
     {title: '最新售價', key: 'latestPrice', },
-    {title: '存貨', key: 'stocks'},
-    {title: '壞貨', key: 'defected'},
+    {title: '存貨', key: 'stocks', },
+    {title: '壞貨', key: 'defected', },
   ],[    
     {title: '入貨日期', key: 'stockingDate'},
     {title: '入貨時間', key: 'stockingTime'},
@@ -48,126 +56,114 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
 </script>
 
 <template>
-  <VRow style="height: 100%">
-    <VCol cols="4" class="d-flex flex-wrap " style="height: 100%">
+  <div>
+  <VRow style="height: 740px">
+    <VCol cols="4" class="pa-0 d-flex flex-column" >
       <VCard
       flat
-      height="100%"
+      class="d-flex flex-wrap flex-grow-1"
       >
-        <VTextField
-          v-model="search"
-          label=""
-          placeholder="搜索"
-          append-inner-icon="tabler-search"
-          @click:append-inner=""
-          class="pa-2"
-          >
-
-        </VTextField>
-        <VCardText
-        class="font-weight-bold text-primary pl-2"
-        >
-          產品編輯
-        </VCardText>
-        <VTextField
-          v-model="productID"
-          label="產品編號"
-          class="pa-2"
-          >
-
-        </VTextField>
-        <VTextField
-          v-model="prodcutName"
-          label="產品名稱"
-          class="pa-2"
-          >
-
-        </VTextField>
-        <VTextField
-          v-model="search"
-          label="建立日期"
-          prepend-inner-icon="tabler-calendar"
-          @click:prepend-inner=""
-          class="pa-2"
-          >
-
-        </VTextField>
-
-        <VRow class="pt-5 pa-2">
-          <VCol cols="6">
-            <VCardText
-              class="font-weight-bold text-primary pa-1"
-              >
-              標簽
-            </VCardText>
-          </VCol>
-          <VCol cols="6">
-            <VBtn
-
-            prepend-icon="tabler-circle-plus"
-            density="compact"
-            class="d-flex ml-auto text-normal"
-            @click="Tags.push({id: Tags.length+1, name: ''})">
-              添加標簽
-            </VBtn>
-          </VCol>
-        </VRow>
-          <VCol v-for= "Tag in Tags"
-            :key="Tag.id"
-            class="pa-2">
-            <AppSelect
-            append-icon="tabler-trash"
-            placeholder="選擇標簽"
-            :items="TagItems"
-            @click:append="Tags.splice(Tags.indexOf(Tag), 1)"
+        <VCol class="align-self-start">
+          <VTextField
+            v-model="search"
+            label=""
+            placeholder="搜索"
+            append-inner-icon="tabler-search"
+            @click:append-inner=""
+            class="pa-2"
             >
 
-            </AppSelect>
-          </VCol>
-          <VRow class="pa-2">
+          </VTextField>
+          <VCardText
+          class="font-weight-bold text-primary pl-2"
+          >
+            產品編輯
+          </VCardText>
+          <VTextField
+            v-model="productID"
+            label="產品編號"
+            class="pa-2"
+            >
+
+          </VTextField>
+          <VTextField
+            v-model="prodcutName"
+            label="產品名稱"
+            class="pa-2"
+            >
+
+          </VTextField>
+          <VTextField
+            v-model="search"
+            label="建立日期"
+            prepend-inner-icon="tabler-calendar"
+            @click:prepend-inner=""
+            class="pa-2"
+            >
+
+          </VTextField>
+
+          <VRow class="pt-5 pa-2">
             <VCol cols="6">
               <VCardText
-              
                 class="font-weight-bold text-primary pa-1"
                 >
-                帳單顯示備註
+                標簽
               </VCardText>
-  
             </VCol>
-            <VCol cols="6" class="d-flex ml-auto text-normal">
+            <VCol cols="6">
               <VBtn
+
               prepend-icon="tabler-circle-plus"
               density="compact"
               class="d-flex ml-auto text-normal"
-              @click="">
-                添加顯示備註
+              @click="Tags.push({id: Tags.length+1, name: ''})">
+                添加標簽
               </VBtn>
-  
             </VCol>
-
           </VRow>
-          <AppTextField
+            <VCol v-for= "Tag in Tags"
+              :key="Tag.id"
+              class="pa-2">
+              <AppSelect
+              append-icon="tabler-trash"
+              placeholder="選擇標簽"
+              :items="TagItems"
+              @click:append="Tags.splice(Tags.indexOf(Tag), 1)"
+              >
 
-          class="pa-2"
-          >
-          fiewqhefeuiwhqghqbgbvd
-          </AppTextField>
-        <VCol cols="12" class="">
-          <VSpacer/>
-        </VCol>
-        <VCol cols="12" class="">
-          <VSpacer/>
-        </VCol>
-        <VCol cols="12" class="">
-          <VSpacer/>
-        </VCol>
-        <VCol cols="12" class="">
-          <VSpacer/>
-        </VCol>
-        <VCol cols="12" class="">
-          <VSpacer/>
-        </VCol>
-        <VCol cols="12" class="mt-100 pt-100 pa-2">
+              </AppSelect>
+            </VCol>
+            <VRow class="pa-2">
+              <VCol cols="6">
+                <VCardText
+                
+                  class="font-weight-bold text-primary pa-1"
+                  >
+                  帳單顯示備註
+                </VCardText>
+    
+              </VCol>
+              <VCol cols="6" class="d-flex ml-auto text-normal">
+                <VBtn
+                prepend-icon="tabler-circle-plus"
+                density="compact"
+                class="d-flex ml-auto text-normal"
+                @click="">
+                  添加顯示備註
+                </VBtn>
+    
+              </VCol>
+
+            </VRow>
+            <AppTextField
+
+            class="pa-2 "
+            >
+            fiewqhefeuiwhqghqbgbvd
+            </AppTextField>
+          </VCol>
+        <VCol cols="12" class="align-self-end">
           <VBtn block class="">
               儲存
           </VBtn>
@@ -175,19 +171,20 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
       </VCard>
     </VCol>
 
-    <VCol cols="8" class="d-flex align-content-stretch flex-wrap">
+    <VCol cols="8" class="d-flex flex-wrap pb-2 px-0">
       <VCard
       flat
-      class="ma-2 pa-3"
+      class="ma-2 pa-3 mb-0 pb-0 d-flex flex-column"
       variant="flat">
-        <VRow class="d-flex gap-4 mb-3">
+        <VRow class=" flex-grow-0 gap-4 mb-3 ">
           <VBtn 
           prepend-icon="tabler-circle-plus">
             添加入貨訊息
           </VBtn>
           <VBtn
           variant="outlined" 
-          prepend-icon="tabler-circle-minus">
+          prepend-icon="tabler-circle-minus"
+          @click="isBrokenProductHandlerSidebarActive= true">
             添加壞貨
           </VBtn>
           <VBtn 
@@ -199,7 +196,6 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
           </VBtn>
   
         </VRow>
-        <VCol cols="12" class="d-flex align-self-stretch flex-wrap">
           <!-- <v-table 
           sortable="true">
             <thead class="text-left">
@@ -243,43 +239,52 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
               </tr>
             </tbody>
           </v-table> -->
-          <VCol cols="12" class="d-flex">
-            <v-data-table
-            :headers="headers[0]"
->
-              <template #bottom>
+            <VCol cols="12" class="d-flex flex-fill px-0" >
+              <v-data-table
+              :headers="headers[0]">
+                <template #bottom>
+                  
+                </template>
+              </v-data-table>
+            </VCol>
+            <VCol cols="12" class="d-flex py-0 flex-fill  px-0">
+              <v-data-table
+              :headers="headers[1]"
+              class="d-flex flex-wrap"
+              >
                 
-              </template>
-            </v-data-table>
-          </VCol>
-          <v-data-table
-          :headers="headers[1]"
-          height="200px"
-          class="justify-center">
-            <template #bottom>
-              <VCardText class="pt-2">
-                <VRow>
-                  <VCol
-                    class="d-flex justify-center"
-                  >
-                    <VPagination
-                      variant="text"
-                      rounded="circle"
-                      v-model="options.page"
-                      total-visible="5"
-                      :length="Math.ceil(TableData.length / options.itemsPerPage)"
-                    >
+                <template #bottom>
+                  <VCardText class="pt-2 pb-2 align-self-end">
+                    <VRow>
+                      <VCol
+                        class="d-flex justify-center"
+                      >
+                        <VPagination
+                          variant="text"
+                          rounded="circle"
+                          v-model="options.page"
 
-                  </VPagination>
-                  </VCol>
-                </VRow>
-              </VCardText>
-            </template>
-          </v-data-table>
-        </VCol>
+                          total-visible="5"
+                          :length="Math.ceil(TableData.length / options.itemsPerPage)"
+                        >
+
+                      </VPagination>
+                      </VCol>
+                    </VRow>
+                  </VCardText>
+                </template>
+              </v-data-table>
+            </VCol>
       </VCard>
     </VCol>
   </VRow>
+  <AddBrokenProductHandler
+    v-model:isDrawerOpen="isBrokenProductHandlerSidebarActive"
+    :brokenProduct="brokenProduct"
+    
+  />
+
+  </div>
 </template>
 
 <style lang="scss">
@@ -293,10 +298,25 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
     }
   }
 }
-.page-content-container{
-  min-height: 100%
+
+
+// .v-table{
+//   .v-table__wrapper{
+//     margin-bottom: 175px;
+//   }
+// }
+
+.v-table{
+  .v-table__wrapper{
+    .v-data-table__th{
+      white-space: nowrap;
+    }
+  }
 }
-.page_content_container{
-  min-height: 100%
+
+
+#content{
+border:0px ;
+height: 100%;
 }
 </style>
