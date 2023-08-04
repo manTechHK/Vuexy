@@ -31,7 +31,15 @@ const resetForm = () => {
 
 watch(() => props.isDrawerOpen, resetForm)
 
+const DeductNumProd = () =>{
+  if(newBrokenProduct.value.numProduct > 1){
+    newBrokenProduct.value.numProduct--
+  }
+}
 
+const IncreaceNumProd = () =>{
+  newBrokenProduct.value.numProduct++
+}
 
 const handleSubmit = () => {
   refForm.value?.validate()
@@ -58,7 +66,7 @@ const dialogModelValueUpdate = (val: boolean) => {
     location="end"
     width="420"
     border="0"
-    class="scrollable-content d-flex flex-wrap"
+    class="scrollable-content d-flex flex-wrap pa-3 pt-5"
     @update:model-value="dialogModelValueUpdate"
     scrim="rgb(0, 0, 0, 0)"
     :model-value="props.isDrawerOpen">
@@ -75,6 +83,54 @@ const dialogModelValueUpdate = (val: boolean) => {
             <p>產品編號{{  }}</p>
             <h6>產品名稱</h6>
           </VCardTitle>
+          <VCardText>
+            <VRow>
+              <VCol cols="6" class="justify-space-between d-flex">
+                <VBtn
+                icon="tabler-minus"
+                variant="outlined"
+                @click="DeductNumProd"
+                />
+                <p class="ma-3 pa-1">{{ newBrokenProduct.numProduct }}</p>
+                <VBtn
+                icon="tabler-plus"
+                variant="outlined"
+                class=""
+                @click="IncreaceNumProd"
+                />
+                
+              </VCol>
+              <VCol cols="12" class="py-1">
+                <AppSelect 
+                  label="壞貨位置"
+                  placeholder="請選擇"
+                >
+
+                </AppSelect>
+              </VCol>
+              <VCol cols="12" class="py-1">
+                <AppDateTimePicker
+                  label="添加日期"
+                  placeholder="請選擇"
+                  prepend-inner-icon="tabler-calendar"
+                  :config="{ dateFormat: 'Y.m.d' }"
+                />
+              </VCol>
+              <VCol cols="12">
+                <AppTextarea
+                 label="壞貨備註" 
+                >
+                  
+                </AppTextarea>
+              </VCol>
+              <VCol cols="12" class="pt-5">
+                <VBtn block>
+                  儲存
+                  
+                </VBtn>
+              </VCol>
+            </VRow>
+          </VCardText>
         </VCard>
       </PerfectScrollbar>
 
@@ -89,9 +145,15 @@ const dialogModelValueUpdate = (val: boolean) => {
   .app-drawer-header-section{
     .v-btn{
       border-radius: 6px; /* Adjust the radius as needed */
-      padding: 6px 8px; /* Adjust the padding as needed */
-      font-size: 8px; /* Adjust the font-size as needed */
-      border: 2px solid currentColor;
+      border: 2px solid grey;
+    }
+  }
+}
+.v-navigation-drawer{
+  .v-card-text{
+    .v-btn{
+      border-radius: 6px; /* Adjust the radius as needed */
+      border: 2px solid grey;
     }
   }
 }

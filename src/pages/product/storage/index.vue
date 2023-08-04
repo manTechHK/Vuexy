@@ -15,6 +15,7 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
     name: string,
     id: number,
   }
+  const numericRule =  (v:string) => [/^\d+$/.test(v) || 'Input must be a number']
 
   const brokenProduct = ref(structuredClone(blankBrokenProduct))
 
@@ -22,6 +23,7 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
   const TableData=[
     {latestStockingDate: '0', latestStockingTime: '1', latestStockingCost: '2', latestMinStockingCost: '3', latestPrice: '4', stocks: '5', defected: '6', stockingDate: '7', stockingTime: '8', stockingCost: '9', minStockingCost: '10', price: '11', stockingVolumn: '12', supplier:'13', avgStockingPrice:'14'},
   ]
+
 
   const headers=[
     [{title: '最新入貨日期', key: 'latestStockingDate', },
@@ -31,6 +33,11 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
     {title: '最新售價', key: 'latestPrice', },
     {title: '存貨', key: 'stocks', },
     {title: '壞貨', key: 'defected', },
+  ],[
+    {title: '倉庫名稱', key: 'warehouseName', },
+    {title: '產品數量', key: 'numProduct', },
+    {title: '聯繫電話', key: 'contactPhoneNum', },
+    {title: '倉庫地址', key: 'warehouseLocation', },
   ],[    
     {title: '入貨日期', key: 'stockingDate'},
     {title: '入貨時間', key: 'stockingTime'},
@@ -39,10 +46,10 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
     {title: '售價', key: 'price'},
     {title: '入貨數', key: 'stockingVolumn'},
     {title: '供應商名稱', key: 'supplier'},
-    {title: '入貨價平均價', key: 'avgStockingPrice'},]
-
-
+  ],[
+    {title: '入貨價平均價', key: 'avgStockingPrice'},
   ]
+]
 
   const TagItems = [
     'Red',
@@ -83,6 +90,7 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
             v-model="productID"
             label="產品編號"
             class="pa-2"
+            :rules="numericRule(productID)"
             >
 
           </VTextField>
@@ -93,15 +101,13 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
             >
 
           </VTextField>
-          <VTextField
+          <AppDateTimePicker
             v-model="search"
-            label="建立日期"
+            placeholder="建立日期"
             prepend-inner-icon="tabler-calendar"
-            @click:prepend-inner=""
             class="pa-2"
-            >
-
-          </VTextField>
+            :config="{ dateFormat: 'Y.m.d' }"
+            />
 
           <VRow class="pt-5 pa-2">
             <VCol cols="6">
@@ -130,6 +136,7 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
               placeholder="選擇標簽"
               :items="TagItems"
               @click:append="Tags.splice(Tags.indexOf(Tag), 1)"
+              class="icon-trash"
               >
 
               </AppSelect>
@@ -171,10 +178,10 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
       </VCard>
     </VCol>
 
-    <VCol cols="8" class="d-flex flex-wrap pb-2 px-0">
+    <VCol cols="8" class="d-flex flex-wrap flex-fill pb-2 px-0">
       <VCard
       flat
-      class="ma-2 pa-3 mb-0 pb-0 d-flex flex-column"
+      class="ma-2 pa-3 mb-0 pb-0 d-flex flex-column flex-fill"
       variant="flat">
         <VRow class=" flex-grow-0 gap-4 mb-3 ">
           <VBtn 
@@ -247,14 +254,14 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
                 </template>
               </v-data-table>
             </VCol>
-            <VCol cols="12" class="d-flex py-0 flex-fill  px-0">
+            <VCol cols="12" class="d-flex flex-fill pb-0 px-0">
               <v-data-table
-              :headers="headers[1]"
-              class="d-flex flex-wrap"
+              :headers="headers[2]"
+              class="d-flex flex-column justify-space-between"
               >
                 
                 <template #bottom>
-                  <VCardText class="pt-2 pb-2 align-self-end">
+                  <VCardText class="pt-2 pb-2 flex-grow-0">
                     <VRow>
                       <VCol
                         class="d-flex justify-center"
@@ -291,13 +298,15 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
 .vdatatable-thread{
   color: 'primary'
 }
-.app-select {
-  .v-select{
-      .v-input__append path {
-      color: red
-    }
+
+.icon-trash{
+    .v-input__append {
+    color: red
   }
 }
+
+
+
 
 
 // .v-table{
@@ -312,6 +321,12 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
       white-space: nowrap;
     }
   }
+}
+
+#table .v-data-footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
 }
 
 
