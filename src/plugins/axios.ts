@@ -1,5 +1,5 @@
-import axios from 'axios'
 import router from '@/router'
+import axios from 'axios'
 
 const axiosIns = axios.create({
   // You can add your headers here
@@ -7,6 +7,7 @@ const axiosIns = axios.create({
   // baseURL: 'https://some-domain.com/api/',
   // timeout: 1000,
   // headers: {'X-Custom-Header': 'foobar'}
+  baseURL: 'https://strapi11.svr.up5d.com/api/'
 })
 
 // ℹ️ Add request interceptor to send the authorization header on each subsequent request after login

@@ -13,6 +13,6 @@ export const initialAbility: UserAbility[] = [
 // ℹ️ You can update this if you store user abilities to more secure place
 // ❗ Anyone can update localStorage so be careful and please update this
 const stringifiedUserAbilities = localStorage.getItem('userAbilities')
-const existingAbility = stringifiedUserAbilities ? JSON.parse(stringifiedUserAbilities) : null
+const existingAbility =  stringifiedUserAbilities ? JSON.parse(stringifiedUserAbilities) as UserAbility: null 
 
 export default new Ability(existingAbility || initialAbility)

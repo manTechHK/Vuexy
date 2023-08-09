@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { LoginResponse } from '@/@fake-db/types'
 import { VNodeRenderer } from '@/@layouts/components/VNodeRenderer'
+import { UserAbility } from '@/plugins/casl/AppAbility'
 import { useAppAbility } from '@/plugins/casl/useAppAbility'
 import axios from '@axios'
 import { useGenerateImageVariant } from '@core/composable/useGenerateImageVariant'
@@ -31,14 +31,28 @@ const errors = ref<Record<string, string | undefined>>({
 })
 
 const refVForm = ref<VForm>()
-const email = ref('admin@demo.com')
-const password = ref('admin')
+const email = ref('support@manfulls.com')
+const password = ref('1Qazxc2Wsxcv?!')
 const rememberMe = ref(false)
 
 const login = () => {
-  axios.post<LoginResponse>('/auth/login', { email: email.value, password: password.value })
+  axios.post('auth/local', { identifier: email.value, password: password.value })
     .then(r => {
-      const { accessToken, userData, userAbilities } = r.data
+
+
+      const accessToken = r.data.jwt
+      const userData = {
+        avatar: "/src/assets/images/avatars/avatar-1.png",
+        email: "admin@demo.com",
+        fullName: "John Doe",
+        id: 1,
+        role: "admin",
+        username: "johndoe",
+      }
+      const userAbilities = [<UserAbility>{action: "manage", subject: "all"},]
+
+      // const { accessToken, userData, userAbilities } = r.data
+      console.log(r)
 
       localStorage.setItem('userAbilities', JSON.stringify(userAbilities))
       ability.update(userAbilities)

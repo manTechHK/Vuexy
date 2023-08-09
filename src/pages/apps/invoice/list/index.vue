@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import type { Invoice } from '@/@fake-db/types'
 import { paginationMeta } from '@/@fake-db/utils'
 import { useInvoiceStore } from '@/views/apps/invoice/useInvoiceStore'
+import { VDataTableServer } from 'vuetify/labs/VDataTable'
 
 import type { Options } from '@core/types'
 import { avatarText } from '@core/utils/formatters'

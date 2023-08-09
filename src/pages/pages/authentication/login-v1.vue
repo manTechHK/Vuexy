@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { emailValidator } from '@/@core/utils/validators'
 import AuthProvider from '@/views/pages/authentication/AuthProvider.vue'
 import authV1BottomShape from '@images/svg/auth-v1-bottom-shape.svg?raw'
 import authV1TopShape from '@images/svg/auth-v1-top-shape.svg?raw'
+import loginAuth from '@JWT/authentication'
 import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
 import { themeConfig } from '@themeConfig'
-import loginAuth from '@JWT'
 
 
 

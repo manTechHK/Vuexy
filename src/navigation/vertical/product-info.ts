@@ -3,7 +3,7 @@ export default [
     {
       title: '產品庫存',
       icon: { icon: 'tabler-building-warehouse' },
-      to: 'product-storage',
+      to: 'product-brokenProducts',
     },
   ]
   

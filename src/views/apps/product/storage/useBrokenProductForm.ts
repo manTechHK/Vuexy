@@ -1,6 +1,9 @@
-export const blankBrokenProduct = {
-    numProduct: 1,
-    location:   '',
-    date:       '',
-    description: '',
+import { newBrokenProductForm } from "./type";
+
+export const blankBrokenProductForm = <newBrokenProductForm>{
+    product_id: '',
+    quantity: '',
+    storehouse_id: '',
+    date: '',
+    remarks: '',
 }
