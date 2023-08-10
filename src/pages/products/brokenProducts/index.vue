@@ -2,9 +2,8 @@
 
 
 // import { useBrokenProductStore } from '@/views/apps/product/storage/';
-import { apiBrokenProductEntriesResponse, brokenProductInfo, Options } from '@/views/apps/product/storage/type';
+import { apiBrokenProductEntriesResponse, brokenProductInfo, Options } from '@/views/apps/products/brokenProducts/type';
 import axios from '@axios';
-import { text } from 'stream/consumers';
 import { VDataTable } from 'vuetify/labs/VDataTable';
 
 
@@ -106,7 +105,7 @@ watchEffect(brokenProductTableEntries)
       <VBtn
       variant="outlined" 
       prepend-icon="tabler-circle-minus"
-      :to="{ name: 'product-brokenProducts-addNewBrokenProduct' }">
+      :to="{ name: 'products-brokenProducts-addNewBrokenProduct' }">
         添加壞貨
       </VBtn>
     </VRow>
@@ -131,13 +130,13 @@ watchEffect(brokenProductTableEntries)
               {{ item.product_name }}
             </td>
             <td>
-              {{ item.date }}
+              {{ item.quantity }}
             </td>
             <td>
               {{ item.storehouse_name }}
             </td>
             <td>
-              {{ item.quantity }}
+              {{ item.date }}
             </td>
             <td>
               {{ item.remarks }}

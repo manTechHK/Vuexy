@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { newBrokenProductForm } from '@/views/apps/product/storage/type';
-import { blankBrokenProductForm } from '@/views/apps/product/storage/useBrokenProductForm';
-import { productInfo, useProductStore } from '@/views/apps/product/storage/useProductStore';
-import { storehouseInfo, useStorehouseStore } from '@/views/apps/product/storage/useStorehouseStore';
+import { newBrokenProductForm } from '@/views/apps/products/brokenProducts/type';
+import { blankBrokenProductForm } from '@/views/apps/products/brokenProducts/useBrokenProductForm';
+import { productInfo, useProductStore } from '@/views/apps/products/brokenProducts/useProductStore';
+import { storehouseInfo, useStorehouseStore } from '@/views/apps/products/brokenProducts/useStorehouseStore';
 import axios from '@axios';
+
 
 const storehouseStore = useStorehouseStore()
 const productStore = useProductStore()
@@ -23,18 +24,17 @@ const clearBrokenProductForm = () => {
     addNewBrokenProductForm.value = blankBrokenProductForm
 }
 
-const setStorehouseOptions = () => {
-    storehouseStore.fetchStorehouses().then(response => {
+const setStorehouseOptions = async () => {
+    await storehouseStore.fetchStorehouses().then(response => {
         options_Storehouse.value = response.map((obj: { attributes: storehouseInfo; id: number; }) => ({
             text: obj.attributes.name,
             value: obj.id
         }))
     })
-    console.log(storehouseStore.storehouseStore)
-    console.log(options_Storehouse.value)
+
 }
-const setProductOptions = () => {
-    productStore.fetchProducts().then(response => {
+const setProductOptions = async () => {
+    await productStore.fetchProducts().then(response => {
         options_Product_id.value = response.map((obj: { attributes: productInfo; id: number; }) => ({
             text: obj.attributes.product_id,
             value: obj.id
@@ -44,8 +44,7 @@ const setProductOptions = () => {
             value: obj.id
         }))
     })
-    console.log(options_Product_id.value)
-    console.log(options_Product_name.value)
+
 }
 
 const postBrokenProduct = () => {
@@ -53,8 +52,8 @@ const postBrokenProduct = () => {
     console.log(response)   
 }
 
-onBeforeMount(setStorehouseOptions)
-onBeforeMount(setProductOptions)
+onMounted(setStorehouseOptions)
+onMounted(setProductOptions)
 
 </script>
 <template>
@@ -76,8 +75,10 @@ onBeforeMount(setProductOptions)
             
             </VAutocomplete>
             <VAutocomplete
-            disabled
-            readonly
+            v-model="addNewBrokenProductForm.product_id"
+            :items="options_Product_name"
+            item-title="text"
+            item-value="value"
             label="產品名稱">
                 
             </VAutocomplete>
@@ -87,13 +88,13 @@ onBeforeMount(setProductOptions)
             label="數量">
                 
             </VTextField>
-            <AppSelect
+            <VAutocomplete
             v-model="addNewBrokenProductForm.storehouse_id"
             :items="options_Storehouse"
             item-title="text"
             item-value="value"
             label="壞貨位置">
-            </AppSelect>
+            </VAutocomplete>
             <AppDateTimePicker
             v-model="addNewBrokenProductForm.date"
             prepend-inner-icon="tabler-calendar"
@@ -106,11 +107,11 @@ onBeforeMount(setProductOptions)
             <VCol class="d-flex flex-row pa-0 gap-3">
                 <VBtn class="flex-fill"
                 @click="clearBrokenProductForm"
-                :to="{ name: 'product-brokenProducts' }">
+                :to="{ name: 'products-brokenProducts' }">
                     取消
                 </VBtn>
                 <VBtn class="flex-fill bg-secondary"
-                @click="postBrokenProduct">
+                type="submit">
                     儲存
                 </VBtn>
                 
