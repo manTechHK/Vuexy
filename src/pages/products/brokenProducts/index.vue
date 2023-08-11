@@ -51,7 +51,9 @@ const currentOptions = ref<Options>({
 
 // watch(q, store.fetchBrokenProductEntries(), { immediate: true })
 
-
+const showStuff = () => {
+  console.log(brokenProducts.value)
+}
 
 
 const brokenProductTableEntries = async ()  => {
