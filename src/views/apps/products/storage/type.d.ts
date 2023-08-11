@@ -45,7 +45,7 @@ export interface ProductProperties{
 
 }
 
-export interface ProductInfo{
+export interface ProductDetails {
     product_id: string,
     name: string,
     new_supplier: string,
@@ -56,6 +56,30 @@ export interface ProductInfo{
     total_stock: number,
     average_restock_price: number,
 }
+
+
+export interface apiProductList{
+    item: apiProductListItem[]
+}
+
+export interface apiProductListItem{
+    attributes: ProductDetails
+    id: number
+}
+
+export interface ProductInfo{
+    strapi_id: number | undefined,
+    product_id: string,
+    name: string,
+    new_supplier: string,
+    new_restock_date: string,
+    new_restock_price: number,
+    new_lowest_price: number,
+    new_selling_price: number,
+    total_stock: number,
+    average_restock_price: number,
+}
+
 
 export interface apiProductEntriesResponse {
     config: object

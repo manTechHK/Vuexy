@@ -218,4 +218,8 @@ watchEffect(brokenProductTableEntries)
 border:0px ;
 height: 100%;
 }
+
+.user-list-name:not(:hover) {
+  color: rgba(var(--v-theme-on-background), var(--v-medium-emphasis-opacity));
+}
 </style>

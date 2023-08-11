@@ -294,12 +294,11 @@ const deleteUser = (id: number) => {
 
           <!-- SECTION datatable -->
           <VDataTableServer
-            v-model:items-per-page="options.itemsPerPage"
-            v-model:page="options.page"
+            :items-per-page="10"
             :items="users"
             :items-length="totalUsers"
             :headers="headers"
-            class="text-no-wrap"
+            class="text-no-wrap "
             @update:options="options = $event"
           >
             <!-- User -->

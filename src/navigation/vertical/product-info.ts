@@ -9,6 +9,6 @@ export default [
       title: '壞貨',
       icon: { icon: 'tabler-package-off'},
       to: 'products-brokenProducts'
-    }
+    },
   ]
   
