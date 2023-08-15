@@ -126,8 +126,9 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
 
   }
 
-  const postBrokenProduct = (param: NewBrokenProduct) => {
-    var response = axios.post('/broken-products', {param})
+  const postBrokenProduct = (data: NewBrokenProduct) => {
+    console.log({product_id: data.product_id, quantity: data.quantity, storehouse_id: data.storehouse_id, date: data.date, remarks: data.remarks})
+    const response = axios.post('/broken-products', {product_id: data.product_id, quantity: data.quantity, storehouse_id: data.storehouse_id, date: data.date, remarks: data.remarks})
     console.log(response)
   }
 
