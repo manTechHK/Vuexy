@@ -49,7 +49,6 @@ const IncreaceNumProd = () =>{
 
 const handleSubmit = () => {
     if (formIsValid()) {
-      console.log('form is valid')
       emit('addBrokenProduct', {
         product_id: newBrokenProduct.value.strapi_id,
         quantity: newBrokenProduct.value.quantity,
@@ -159,7 +158,7 @@ onMounted(setStorehouseOptions)
                     label="添加日期"
                     placeholder="請選擇"
                     prepend-inner-icon="tabler-calendar"
-                    :config="{ dateFormat: 'Y.m.d' }"
+
                     :rules="rules(newBrokenProduct.date)"
                     validate-on="submit"
                   />

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { paginationMeta } from '@/@fake-db/utils'
+
 import { apiProductListItem, ProductInfo } from '@/views/apps/products/storage/type'
 import { useProductListStore } from '@/views/apps/products/storage/useProductListStore'
 import type { Options } from '@core/types'
@@ -73,6 +73,15 @@ const fetchProductList = async () => {
 //     }
 // }
 
+const paginationMeta = computed(() => {
+  return <T extends { page: number; itemsPerPage: number }>(options: T, total: number) => {
+    const start = (options.page - 1) * options.itemsPerPage + 1
+    const end = Math.min(options.page * options.itemsPerPage, total)
+
+    return `${start} - ${end} of ${total}`
+  }
+})
+
 const showData = () =>{
     console.log(productList.value)
 }
@@ -125,6 +134,7 @@ onBeforeMount(fetchProductList)
     </VCol>
     <VCol class="d-flex pa-2">
         <VDataTable
+        height="68vh"
         v-model:items-per-page="options.itemsPerPage"
         v-model:page="options.page"
         :headers="headers"

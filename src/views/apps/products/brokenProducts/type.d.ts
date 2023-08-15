@@ -35,7 +35,8 @@ interface filterOption{
 
 export interface Options{
     filter : filterOption,
-    itemPerPage : number,
+    itemsPerPage : number,
+    page: number,
 }
 
 export interface newBrokenProductForm{

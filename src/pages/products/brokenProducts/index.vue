@@ -13,7 +13,8 @@ const currentOptions = ref<Options>({
     date: '',
     search: ''
   },
-  itemPerPage: 10,
+  itemsPerPage: 10,
+  page: 1,
 })
 
   const productID = ref()
@@ -51,6 +52,15 @@ const currentOptions = ref<Options>({
 
 // watch(q, store.fetchBrokenProductEntries(), { immediate: true })
 
+const paginationMeta = computed(() => {
+  return <T extends { page: number; itemsPerPage: number }>(options: T, total: number) => {
+    const start = (options.page - 1) * options.itemsPerPage + 1
+    const end = Math.min(options.page * options.itemsPerPage, total)
+
+    return `${start} - ${end} of ${total}`
+  }
+})
+
 const showStuff = () => {
   console.log(brokenProducts.value)
 }
@@ -71,7 +81,7 @@ watchEffect(brokenProductTableEntries)
 </script>
 
 <template>
-  <div style="height: 740px" class="d-flex flex-wrap flex-column">
+  <div style="" class="d-flex flex-wrap flex-column">
     <VRow  class="flex-grow-0">
       <h2 class="text-primary text-weight-medium">壞貨</h2>
     </VRow>
@@ -115,7 +125,10 @@ watchEffect(brokenProductTableEntries)
       <VCol cols="12" class="d-flex flex-fill pb-0 px-0">
         <v-data-table
         show-select
+        height="68vh"
         :headers="headers"
+        v-model:items-per-page="currentOptions.itemsPerPage"
+        v-model:page="currentOptions.page"
         :items="brokenProducts"
         class="d-flex flex-column justify-space-between"
 
@@ -153,24 +166,39 @@ watchEffect(brokenProductTableEntries)
 
 
           <template #bottom>
-            <VCardText class="pt-2 pb-2 flex-grow-0">
-              <VRow>
-                <VCol
-                  class="d-flex justify-center"
-                >
-                  <VPagination
-                    variant="text"
-                    rounded="circle"
-                    v-model="options.page"
+            <VCardText class="pt-2 pb-2 ">
+                    <VRow class="justify-space-between align-center">
+                        <p class="text-sm text-disabled mb-0">
+                            {{ paginationMeta(currentOptions, brokenProducts.length) }}
+                        </p>
+                            <VPagination
+                            variant="text"
+                            rounded="circle"
+                            v-model="options.page"
+                            :length="Math.ceil(brokenProducts.length / currentOptions.itemsPerPage)"
+                            :total-visible="$vuetify.display.xs ? 1 : Math.ceil(brokenProducts.length / currentOptions.itemsPerPage)"
+                            >
 
-                    total-visible="5"
-                    :length="Math.ceil(TableData.length / options.itemsPerPage)"
-                  >
-
-                </VPagination>
-                </VCol>
-              </VRow>
-            </VCardText>
+                            </VPagination>
+                            <div class="d-flex flex-wrap align-center">
+                                <p class="mb-0 pr-4">
+                                    每頁數量
+                                </p>
+                                <AppSelect
+                                    :model-value="currentOptions.itemsPerPage"
+                                    :items="[
+                                    { value: 10, title: '10' },
+                                    { value: 25, title: '25' },
+                                    { value: 50, title: '50' },
+                                    { value: 100, title: '100' },
+                                    { value: -1, title: 'All' },
+                                    ]"
+                                    style="width: 6.25rem;"
+                                    @update:model-value="currentOptions.itemsPerPage = parseInt($event, 10)"
+                                />
+                            </div>
+                    </VRow>
+                </VCardText>
           </template>
         </v-data-table>
       </VCol>
