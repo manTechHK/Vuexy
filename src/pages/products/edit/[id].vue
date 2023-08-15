@@ -1,31 +1,63 @@
 <script setup lang="ts">  
 
 import AddBrokenProductHandler from '@/views/apps/products/storage/addBrokenProductHandler.vue'
-import { blankBrokenProduct } from '@/views/apps/products/storage/useBrokenProductForm'
+import { BrokenProductInfo, NewBrokenProduct, ProductProperties } from '@/views/apps/products/storage/type'
 import { useProductListStore } from '@/views/apps/products/storage/useProductListStore'
+import axios from '@axios'
 import { VDataTable } from 'vuetify/labs/VDataTable'
 
   const productListStore = useProductListStore()
-  const productData = ref()
   const search = ref('')
-  const productID = ref()
-  const prodcutName = ref('')
   const isBrokenProductHandlerSidebarActive = ref(false)
   const items = ref([])
+  const productData = ref<ProductProperties>({
+    product_id: '',
+    name: '',
+    create_date: '',
+    labels: {data: [{attributes: {name:'', createdAt:'', isShow: true, publishedAt:'', updatedAt: ''}, id: -1}]},
+    variation: {data: [{attributes: {name:'', createdAt:'', isShow: true, publishedAt:'', updatedAt: ''}, id: -1}]},
+    remarks: [{content: '', id: -1}] ,
+    new_restock_date: '',
+    new_restock_price: NaN,
+    new_lowest_price: NaN,
+    new_selling_price: NaN,
+    total_stock: NaN,
+    total_broken_products: NaN,
+    storehouse_info: [],
+    restock: [],
+    average_restock_price: NaN,
+  })
+  type productKey = keyof ProductProperties
+
+  interface remark {
+    content: string,
+    id: number,
+}
 
   const options = ref({ page: 1, itemsPerPage: 5, sortBy: [''], sortDesc: [false] })
 
-  interface Tag {
-    name: string,
+  interface label {
     id: number,
+    name: string,
   }
   interface variant {
     name: string,
     id: number,
   }
+
+
+
   const numericRule =  (v:string) => [/^\d+$/.test(v) || 'Input must be a number']
 
-  const brokenProduct = ref(structuredClone(blankBrokenProduct))
+  const brokenProduct = ref<BrokenProductInfo>({
+    strapi_id: NaN,
+    product_id: '',
+    name: '',
+    quantity: 1,
+    storehouse_id: NaN,
+    date: '',
+    remarks: '',
+  })
 
 
   const TableData=[
@@ -35,32 +67,32 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
 
   const headers=[
     [
-    {title: '最新入貨日期', key: 'latestStockingDate', },
-    {title: '最新入貨時間', key: 'latestStockingTime', },
-    {title: '最新入貨價錢', key: 'latestStockingPrice', },
-    {title: '最新最低價錢', key: 'latestMinStockingPrice', },
-    {title: '最新售價', key: 'latest_selling_price', },
-    {title: '存貨', key: 'stocks', },
-    {title: '壞貨', key: 'defected', },
+    {title: '最新入貨日期', key: 'new_restock_date', },
+    {title: '最新入貨時間', key: 'new_restock_time', },
+    {title: '最新入貨價錢', key: 'new_restock_price', },
+    {title: '最新最低價錢', key: 'new_lowest_pice', },
+    {title: '最新售價', key: 'new_selling_price', },
+    {title: '存貨', key: 'total_stock', },
+    {title: '壞貨', key: 'total_broken_products', },
   ],[
-    {title: '倉庫名稱', key: 'warehouseName', },
-    {title: '產品數量', key: 'numProduct', },
-    {title: '聯繫電話', key: 'contactPhoneNum', },
-    {title: '倉庫地址', key: 'warehouseLocation', },
+    {title: '倉庫名稱', key: 'storehouse_name', },
+    {title: '產品數量', key: 'quantity', },
+    {title: '聯繫電話', key: 'phone_num', },
+    {title: '倉庫地址', key: 'storehouse_address', },
   ],[    
-    {title: '入貨日期', key: 'stockingDate'},
-    {title: '入貨時間', key: 'stockingTime'},
-    {title: '入貨價錢', key: 'stockingPrice'},
-    {title: '最低價錢', key: 'minStockingPrice'},
-    {title: '售價', key: 'price'},
-    {title: '入貨數', key: 'stockingVolumn'},
-    {title: '供應商名稱', key: 'supplier'},
+    {title: '入貨日期', key: 'restock_date'},
+    {title: '入貨時間', key: 'restock_time'},
+    {title: '入貨價錢', key: 'restock_price'},
+    {title: '最低價錢', key: 'lowest_price'},
+    {title: '售價', key: 'selling_price'},
+    {title: '入貨數', key: 'quantity'},
+    {title: '供應商名稱', key: 'supplier_name'},
   ],[
-    {title: '入貨價平均價', key: 'avgStockingPrice'},
+    {title: '入貨價平均價', key: 'average_restock_price'},
   ]
 ]
 
-  const TagItems = [
+  const labelItems = [
     'Red',
     'Hello Kitty',
   ]
@@ -71,16 +103,39 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
 
   const route = useRoute()
 
-  const Tags = ref<Tag[]>([])
-  const variants = ref<variant[]>([])
-  Tags.value[0]={name: '', id: 1}
-  variants.value[0]={name: '', id: 1}
+  const labels = ref<label[]>([{name: '', id: -1}])
+  const variants = ref<variant[]>([{name: '', id: -1}])
+  const remarks = ref<remark[]>([{content: '', id: -1}])
 
-  productListStore.fetchProduct(Number(route.params.id)).then(response => {
-    productData.value = response.data
-  })
 
-//  const addTag = ()
+  remarks.value[0] = {content : '', id:1}
+
+  
+  const setFieldDefaultValue = async() => {
+    await productListStore.fetchProduct(Number(route.params.id)).then(response => {
+      productData.value = response.data.data.attributes
+      brokenProduct.value.strapi_id = response.data.data.id
+      brokenProduct.value.product_id = response.data.data.attributes.product_id
+      brokenProduct.value.name = response.data.data.attributes.name
+
+      console.log(productData.value)
+    })
+    labels.value = productData.value.labels? productData.value.labels.data.map(label => ({name: label.attributes.name, id: label.id})):
+    variants.value = productData.value.variation.data.map(variant => ({name: variant.attributes.name, id: variant.id}))
+    remarks.value = productData.value.remarks.length>0?productData.value.remarks:remarks.value
+
+  }
+
+  const postBrokenProduct = (param: NewBrokenProduct) => {
+    var response = axios.post('/broken-products', {param})
+    console.log(response)
+  }
+
+  
+  
+  onMounted(setFieldDefaultValue)
+
+//  const addlabel = ()
 </script>
 
 <template>
@@ -99,25 +154,26 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
             產品編輯
           </VCardText>
           <VTextField
-            v-model="productID"
+            v-model="productData.product_id"
             label="產品編號"
             class="pa-2"
-            :rules="numericRule(productID)"
             >
 
           </VTextField>
           <VTextField
-            v-model="prodcutName"
+            v-model="productData.name"
             label="產品名稱"
             class="pa-2"
             >
 
           </VTextField>
           <AppDateTimePicker
-            v-model="search"
-            placeholder="建立日期"
+            v-model="productData.create_date"
+            label="建立日期"
             prepend-inner-icon="tabler-calendar"
+            readonly
             class="pa-2"
+            disabled
             :config="{ dateFormat: 'Y.m.d' }"
             />
 
@@ -135,19 +191,20 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
               prepend-icon="tabler-circle-plus"
               density="compact"
               class="d-flex ml-auto text-normal"
-              @click="Tags.push({id: Tags.length+1, name: ''})">
+              @click="labels.push({id: labels.length+1, name: ''})">
                 添加標簽
               </VBtn>
             </VCol>
           </VRow>
-            <VCol v-for= "Tag in Tags"
-              :key="Tag.id"
+            <VCol v-for= "label in labels"
+              :key="label.id"
               class="pa-2">
               <AppSelect
+              v-model="label.name"
               append-icon="tabler-trash"
               placeholder="選擇標簽"
-              :items="TagItems"
-              @click:append="Tags.splice(Tags.indexOf(Tag), 1)"
+              :items="labelItems"
+              @click:append="labels.splice(labels.indexOf(label), 1)"
               class="icon-trash"
               >
 
@@ -207,12 +264,13 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
               </VCol>
 
             </VRow>
-            <AppTextField
-
-            class="pa-2 "
-            >
-            沒有備註
-            </AppTextField>
+            <div v-for="remark in productData.remarks">
+              <AppTextField
+              class="pa-2 "
+              >
+              {{ remark.content }}
+              </AppTextField>
+            </div>
           </VCol>
         <VCol cols="12" class="align-self-end">
           <VBtn block class="">
@@ -253,15 +311,29 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
           no-data-text=""
           :headers="headers[0]"
           class="">
+            <template #body>
+              <tr>
+                <td v-for="header in headers[0]" >
+                  {{ productData[header.key as keyof typeof productData] }}
+                </td>
+              </tr>
+            </template>
             <template #bottom>
               
             </template>
           </v-data-table>
           <v-data-table
-          v-if="items.length!==0"
+          v-if="productData.storehouse_info.length!==0"
           no-data-text=""
           :headers="headers[1]"
           class="">
+            <template #body>
+              <tr v-for="item in productData.storehouse_info">
+                <td v-for="header in headers[1]" >
+                  {{ item[header.key as keyof typeof item] }}
+                </td>
+              </tr>
+            </template>
             <template #bottom>
               
             </template>
@@ -270,6 +342,13 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
           no-data-text=""
           :headers="headers[2]"
           class="">
+            <template #body>
+              <tr v-for="item in productData.restock">
+                <td v-for="header in headers[2]" >
+                  {{ item[header.key as keyof typeof item] }}
+                </td>
+              </tr>
+            </template>
             <template #bottom>
               
             </template>
@@ -281,7 +360,13 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
           :headers="headers[3]"
           class="d-flex flex-column justify-space-between"
           >
-            
+            <template #body>
+              <tr>
+                <td v-for="header in headers[3]" >
+                  {{ productData[header.key as productKey] }}
+                </td>
+              </tr>
+            </template>
             <template #bottom>
               <VCardText class="pt-2 pb-2 flex-grow-0">
                 <VRow>
@@ -310,7 +395,7 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
   <AddBrokenProductHandler
     v-model:isDrawerOpen="isBrokenProductHandlerSidebarActive"
     :brokenProduct="brokenProduct"
-    
+    @add-broken-product="postBrokenProduct"
   />
 
   </div>

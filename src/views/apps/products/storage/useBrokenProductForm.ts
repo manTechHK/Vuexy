@@ -1,6 +1,7 @@
 export const blankBrokenProduct = {
+    id: NaN,
     numProduct: 1,
-    location:   '',
+    storehouse_id:   NaN,
     date:       '',
     description: '',
 }

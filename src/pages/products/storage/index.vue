@@ -86,6 +86,7 @@ onBeforeMount(fetchProductList)
             產品列表
         </VCardText>
         <VBtn
+        variant="outlined" 
          prepend-icon="tabler-file-text" 
          class="ml-auto"
          @click="showData">
@@ -116,7 +117,8 @@ onBeforeMount(fetchProductList)
             </VBtn>
         </VCol>
         <VCol class="d-flex flex-grow-0 pa-1">
-            <VBtn>
+            <VBtn
+            variant="outlined" >
                 列印產品列表
             </VBtn>
         </VCol>

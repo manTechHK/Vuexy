@@ -1,11 +1,28 @@
-import type { Except } from 'type-fest';
 
-interface label {
+interface labelAttributes {
     name: string,
+    createdAt: Date | string,
+    isShow: boolean,
+    publishedAt: Date | string,
+    updatedAt: Date | string,
+}
+
+interface label{
+    attributes: labelAttributes,
+    id: number,
+}
+
+interface variantAttributes {
+    name: string,
+    createdAt: Date | string,
+    isShow: boolean,
+    publishedAt: Date | string,
+    updatedAt: Date | string,
 }
 
 interface variant {
-    name: string
+    attributes: variantAttributes
+    id: number
 }
 
 
@@ -26,20 +43,41 @@ interface restockInfo{
     supplier_name: string,
 }
 
+interface labelData{
+    data: label[]
+}
+
+interface variantData{
+    data: variant[]
+}
+
+export interface remark {
+    content: string,
+    id: number,
+}
+
+interface storehouseInfo{
+    storehouse_id: string,
+    storehouse_name: string,
+    quantity: number,
+    phone_no: string,
+    storehouse_address: string,
+}
+
 export interface ProductProperties{
     product_id: string,
     name: string,
-    create_date: Date,
-    labels: label[] | null,
-    variation: variant[] | null,
-    remarks: remark[] | null,
+    create_date: Date | string,
+    labels: labelData,
+    variation: variantData,
+    remarks: remark[],
     new_restock_date: Datetime,
     new_restock_price: number,
     new_lowest_price: number,
     new_selling_price: number,
     total_stock: number,
     total_broken_products: number,
-    storehouse_info: storehouseInfo[]
+    storehouse_info: storehouseInfo[],
     restock: restockInfo[],
     average_restock_price: number,
 
@@ -65,6 +103,11 @@ export interface apiProductList{
 export interface apiProductListItem{
     attributes: ProductDetails
     id: number
+}
+
+export interface apiProductItem{
+    attributes: ProductProperties,
+    id: number,
 }
 
 export interface ProductInfo{
@@ -94,11 +137,20 @@ export interface apiProductEntriesResponse {
 }
 
     
-export interface BrokenProduct{
-    id:         string,
-    numProduct: number,
-    location:   string,
+export interface BrokenProductInfo{
+    strapi_id:  number,
+    product_id: string,
+    name: string,
+    quantity:   number,
+    storehouse_id:  number,
     date:       string,
-    description: string,
+    remarks:    string,
 }
-export type NewBrokenProduct = Except<BrokenProduct, 'id'>
+
+export  interface NewBrokenProduct {
+    product_id: number,
+    quantity:   number,
+    storehouse_id:  number,
+    date:       string,
+    remarks:    string,
+}
