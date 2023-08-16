@@ -1,6 +1,7 @@
 <script setup lang="ts">  
 
 import AddBrokenProductHandler from '@/views/apps/products/storage/addBrokenProductHandler.vue'
+import brokenProductDetailDrawer from '@/views/apps/products/storage/brokenProductDetailDrawer.vue'
 import { BrokenProductInfo, NewBrokenProduct, ProductProperties } from '@/views/apps/products/storage/type'
 import { useProductListStore } from '@/views/apps/products/storage/useProductListStore'
 import axios from '@axios'
@@ -9,6 +10,7 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
   const productListStore = useProductListStore()
   const search = ref('')
   const isBrokenProductHandlerSidebarActive = ref(false)
+  const isBrokenProductDetailDrawerActive = ref(false)
   const items = ref([])
   const productData = ref<ProductProperties>({
     product_id: '',
@@ -130,6 +132,14 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
     console.log({product_id: data.product_id, quantity: data.quantity, storehouse_id: data.storehouse_id, date: data.date, remarks: data.remarks})
     const response = axios.post('/broken-products', {product_id: data.product_id, quantity: data.quantity, storehouse_id: data.storehouse_id, date: data.date, remarks: data.remarks})
     console.log(response)
+  }
+
+  const deleteBrokenProduct = async (strapi_id: number) => {
+    await axios.delete(`/broken-products/${strapi_id}`).then(response => {
+      console.log(response)
+    }).catch(err => {
+      console.log(err)
+    })
   }
 
   
@@ -396,6 +406,10 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
     :brokenProduct="brokenProduct"
     @add-broken-product="postBrokenProduct"
   />
+  <brokenProductDetailDrawer
+    v-model:isDrawerOpen="isBrokenProductDetailDrawerActive"
+    :product_strapi_id="Number(route.params.id)"
+    @delete-broken-product="deleteBrokenProduct"/>
 
   </div>
 </template>
