@@ -372,13 +372,11 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
               <VCardText class="pt-2 pb-2 flex-grow-0">
                 <VRow>
                   <VCol
-                    class="d-flex justify-center"
-                  >
+                    class="d-flex justify-center">
                     <VPagination
                       variant="plain"
                       rounded="circle"
                       v-model="options.page"
-
                       total-visible="5"
                       :length="Math.ceil(TableData.length / options.itemsPerPage)"
                     >

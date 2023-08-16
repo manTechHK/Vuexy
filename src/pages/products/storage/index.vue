@@ -1,12 +1,15 @@
 <script setup lang="ts">
 
+import productDetailDrawer from '@/views/apps/products/storage/productDetailDrawer.vue'
 import { apiProductListItem, ProductInfo } from '@/views/apps/products/storage/type'
 import { useProductListStore } from '@/views/apps/products/storage/useProductListStore'
 import type { Options } from '@core/types'
 import { VDataTable } from 'vuetify/labs/VDataTable'
 
 const router = useRouter()
+const isProductDetailDrawerActive = ref(false)
 const productListStore = useProductListStore()
+const productDrawerIndex = ref(NaN)
 const productList = ref<ProductInfo[]>([])
 const options = ref<Options>({
   page: 1,
@@ -29,20 +32,7 @@ const headers=[
     {title: '存貨', key: 'total_stock'},
 ]
 
-const tempProductList = [
-    {
-        product_id: '0',
-        name: '1',
-        new_supplier: '2',
-        new_restock_date: '3',
-        new_restock_time: '4',
-        new_restock_price: '5',
-        new_lowest_price: '6',
-        new_selling_price: '7',
-        average_restock_price: '8',
-        total_stock: '9',
-    },
-]
+
 
 const fetchProductList = async () => {
     await productListStore.fetchProducts().then(response => {
@@ -82,6 +72,15 @@ const paginationMeta = computed(() => {
   }
 })
 
+const openProductDetailDrawer =  (strapi_id: number) => {
+    updateProductDrawerIndex(strapi_id)
+    isProductDetailDrawerActive.value = true
+}
+
+const updateProductDrawerIndex = (strapi_id: number) => {
+    productDrawerIndex.value = strapi_id
+}
+
 const showData = () =>{
     console.log(productList.value)
 }
@@ -89,6 +88,7 @@ onBeforeMount(fetchProductList)
 
 </script>
 <template>
+<div>
 <VRow class="d-flex flex-wrap flex-column">
     <VCol class="d-flex flex-grow-0 pa-2" >
         <VCardText class="text-primary font-weight-black text-h3 pa-0">
@@ -174,7 +174,8 @@ onBeforeMount(fetchProductList)
                         {{ item.raw.total_stock }}
                     </td>
                     <div>
-                        <text class="text-secondary">
+                        <text class="text-secondary"
+                        @click="openProductDetailDrawer(item.raw.strapi_id)">
                             庫存詳情
                         </text>
                     </div>
@@ -232,4 +233,10 @@ onBeforeMount(fetchProductList)
         </VDataTable>
     </VCol>
 </VRow>
+<productDetailDrawer
+    v-model:isDrawerOpen="isProductDetailDrawerActive"
+    v-model:product_strapi_id="productDrawerIndex">
+
+</productDetailDrawer>
+</div>
 </template>

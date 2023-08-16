@@ -1,4 +1,3 @@
-import type { ProductProperties } from '@/views/apps/products/storage/type'
 import axios from '@axios'
 import type { AxiosResponse } from 'axios'
 import { defineStore } from 'pinia'
@@ -14,14 +13,14 @@ export const useProductListStore = defineStore('productListStore', {
     },
 
     // 👉 Add product
-    addProduct(userData: ProductProperties) {
-      return new Promise((resolve, reject) => {
-        axios.post('/apps/users/user', {
-          user: userData,
-        }).then(response => resolve(response))
-          .catch(error => reject(error))
-      })
-    },
+    // addProduct(userData: ProductProperties) {
+    //   return new Promise((resolve, reject) => {
+    //     axios.post('/apps/users/user', {
+    //       user: userData,
+    //     }).then(response => resolve(response))
+    //       .catch(error => reject(error))
+    //   })
+    // },
 
     // 👉 fetch single product
     fetchProduct(strapid: number) {
