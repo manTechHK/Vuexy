@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ProductProperties } from './type'
-import { blankProductProperties } from './useBlankProductProperties'
-import { useProductListStore } from './useProductListStore'
+import { ProductProperties } from './storage/type'
+import { blankProductProperties } from './storage/useBlankProductProperties'
+import { useProductListStore } from './storage/useProductListStore'
 
 
 interface Props {

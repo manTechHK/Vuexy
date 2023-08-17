@@ -2,6 +2,7 @@
 
 
 // import { useBrokenProductStore } from '@/views/apps/product/storage/';
+import brokenProductDetailDrawer from '@/views/apps/products/brokenProductDetailDrawer.vue';
 import { apiBrokenProductEntriesResponse, brokenProductInfo, Options } from '@/views/apps/products/brokenProducts/type';
 import axios from '@axios';
 import { VDataTable } from 'vuetify/labs/VDataTable';
@@ -23,6 +24,8 @@ const currentOptions = ref<Options>({
   const brokenProducts = ref<brokenProductInfo[]>([])
   const singleSelect = ref(false)
   const selected = ref([])
+  const brokenProductDetailDrawerStrapiIndex = ref<number>()
+  const isBrokenProductDetailDrawerActive = ref(false)
 
   const options = ref({ page: 1, itemsPerPage: 5, sortBy: [''], sortDesc: [false] })
 
@@ -65,17 +68,27 @@ const showStuff = () => {
   console.log(brokenProducts.value)
 }
 
+const openBrokenProductDetailDrawer = (strapi_id: number) => {
+  brokenProductDetailDrawerStrapiIndex.value = strapi_id
+  isBrokenProductDetailDrawerActive.value = true
+}
+
+const deleteBrokenProduct = (strapi_id: number)=>{
+
+}
 
 const brokenProductTableEntries = async ()  => {
   var response  = <apiBrokenProductEntriesResponse> await axios.get('broken-products')
   // console.log(response.data.data)
+
   for(let i = 0; i < response.data.data.length; i++){
-    brokenProducts.value[i] = response.data.data[i].attributes
+    brokenProducts.value[i] = {strapi_id: response.data.data[i].id, ...response.data.data[i].attributes}
   }
-   console.log(response.data.data)
 }
 
-watchEffect(brokenProductTableEntries)
+
+
+onMounted(brokenProductTableEntries)
 
 //  const addTag = ()
 </script>
@@ -124,6 +137,7 @@ watchEffect(brokenProductTableEntries)
     <VRow>
       <VCol cols="12" class="d-flex flex-fill pb-0 px-0">
         <v-data-table
+        no-data-text=""
         show-select
         height="68vh"
         :headers="headers"
@@ -133,35 +147,17 @@ watchEffect(brokenProductTableEntries)
         class="d-flex flex-column justify-space-between"
 
         >
-        <template v-slot:body>
-          <tr v-for="item in brokenProducts" :key="item.product_id">
-            <td>
-              <VCheckboxBtn/>
-            </td>
-            <td>
-              {{ item.product_id }}
-            </td>
-            <td>
-              {{ item.product_name }}
-            </td>
-            <td>
-              {{ item.quantity }}
-            </td>
-            <td>
-              {{ item.storehouse_name }}
-            </td>
-            <td>
-              {{ item.date }}
-            </td>
-            <td>
-              {{ item.remarks }}
+        <template #item.remarks = "{item}">
+          
+            <td class="d-flex align-center justify-space-between">
+              {{ item.raw.remarks }}
+              
+              <div>
+                <text @click="openBrokenProductDetailDrawer(item.raw.strapi_id)" class="mr-2 text-secondary">詳情</text>
+                <text @click="" style="color: red;">刪除</text>
+              </div>
             </td>
 
-            <td class="d-inline-flex align-center px-0 ml-auto">
-              <text @click="" class="mr-2 text-secondary">詳情</text>
-              <text @click="" style="color: red;">刪除</text>
-            </td>
-          </tr>
         </template>
 
 
@@ -203,6 +199,10 @@ watchEffect(brokenProductTableEntries)
         </v-data-table>
       </VCol>
     </VRow>
+    <brokenProductDetailDrawer
+    v-model:isDrawerOpen="isBrokenProductDetailDrawerActive"
+    v-model:product_strapi_id="brokenProductDetailDrawerStrapiIndex"
+    @delete-broken-product="deleteBrokenProduct"/>
   </div>
 </template>
 

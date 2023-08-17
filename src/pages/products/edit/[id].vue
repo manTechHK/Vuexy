@@ -1,7 +1,7 @@
 <script setup lang="ts">  
 
+import brokenProductDetailDrawer from '@/views/apps/products/brokenProductDetailDrawer.vue'
 import AddBrokenProductHandler from '@/views/apps/products/storage/addBrokenProductHandler.vue'
-import brokenProductDetailDrawer from '@/views/apps/products/storage/brokenProductDetailDrawer.vue'
 import { BrokenProductInfo, NewBrokenProduct, ProductProperties } from '@/views/apps/products/storage/type'
 import { useProductListStore } from '@/views/apps/products/storage/useProductListStore'
 import axios from '@axios'
@@ -324,8 +324,31 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
           class="">
             <template #body>
               <tr>
-                <td v-for="header in headers[0]" >
+                <!-- <td v-for="header in headers[0]" >
                   {{ productData[header.key as keyof typeof productData] }}
+                </td> -->
+                <td>
+                  {{ productData.new_restock_date }}
+                </td>
+                <td>
+                  {{ productData.new_restock_date }}
+                </td>
+                <td>
+                  {{ productData.new_restock_price }}
+                </td>
+                <td>
+                  {{ productData.new_lowest_price }}
+                </td>
+                <td>
+                  {{ productData.new_selling_price }}
+                </td>
+                <td>
+                  {{ productData.total_stock }}
+                </td>
+                <td class="d-flex align-center justify-space-between pr-0">
+                  {{ productData.total_broken_products }}
+                  <text class="text-secondary"
+                  @click="isBrokenProductDetailDrawerActive=true">詳情</text>
                 </td>
               </tr>
             </template>

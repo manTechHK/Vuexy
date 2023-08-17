@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import productDetailDrawer from '@/views/apps/products/storage/productDetailDrawer.vue'
+import productDetailDrawer from '@/views/apps/products/productDetailDrawer.vue'
 import { apiProductListItem, ProductInfo } from '@/views/apps/products/storage/type'
 import { useProductListStore } from '@/views/apps/products/storage/useProductListStore'
 import type { Options } from '@core/types'
@@ -141,66 +141,43 @@ onBeforeMount(fetchProductList)
         :items="productList"
 
         class="d-flex flex-column justify-space-between text-no-wrap">
-            <template #item = "{item}">
-                <tr>
-                    <td>
-                        {{ item.raw.product_id }}
-                    </td>
-                    <td>
-                        {{ item.raw.name }}
-                    </td>
-                    <td>
-                        {{ item.raw.new_supplier}}
-                    </td>
-                    <td>
-                        {{ item.raw.new_restock_date }}
-                    </td>
-                    <td>
-                        {{ item.raw.new_restock_date }}
-                    </td>
-                    <td>
-                        {{ item.raw.new_restock_price }}
-                    </td>
-                    <td>
-                        {{ item.raw.new_lowest_price }}
-                    </td>
-                    <td>
-                        {{ item.raw.new_selling_price }}
-                    </td>
-                    <td>
-                        {{ item.raw.average_restock_price}}
-                    </td>
-                    <td>
+            <template #item.total_stock = "{item}">
+                
+                    <td class="d-flex align-center justify-space-between pr-0">
                         {{ item.raw.total_stock }}
+                        <div>
+                            <div>
+                                <text class="text-secondary"
+                                @click="openProductDetailDrawer(item.raw.strapi_id)">
+                                    庫存詳情
+                                </text>
+                            </div>
+                            <text class="text-base">
+                                <RouterLink
+                                :to="{ name: 'products-edit-id',params: { id: item.raw.strapi_id } }"
+                                class="font-weight-medium user-list-name text-secondary"
+                                >
+                                編輯
+                                </RouterLink>
+                            </text>
+        
+        
+                            <text style="color: red;">
+                                刪除
+                            </text>
+                        </div>
                     </td>
-                    <div>
-                        <text class="text-secondary"
-                        @click="openProductDetailDrawer(item.raw.strapi_id)">
-                            庫存詳情
-                        </text>
-                    </div>
-                    <text class="text-base">
-                        <RouterLink
-                        :to="{ name: 'products-edit-id',params: { id: item.raw.strapi_id } }"
-                        class="font-weight-medium user-list-name text-secondary"
-                        >
-                        編輯
-                        </RouterLink>
-                    </text>
-
-
-                    <text style="color: red;">
-                        刪除
-                    </text>
-                </tr>
             </template>
 
             <template #bottom>
                 <VCardText class="pt-2 pb-2 ">
                     <VRow class="justify-space-between align-center">
-                        <p class="text-sm text-disabled mb-0">
-                            {{ paginationMeta(options, productList.length) }}
-                        </p>
+                        <VCol>
+                            <p class="text-sm text-disabled mb-0">
+                                {{ paginationMeta(options, productList.length) }}
+                            </p>
+                        </VCol>
+                        <VCol>
                             <VPagination
                             variant="text"
                             rounded="circle"
@@ -208,9 +185,11 @@ onBeforeMount(fetchProductList)
                             :length="Math.ceil(productList.length / options.itemsPerPage)"
                             :total-visible="$vuetify.display.xs ? 1 : Math.ceil(productList.length / options.itemsPerPage)"
                             >
-
                             </VPagination>
-                            <div class="d-flex flex-wrap align-center">
+                        </VCol>
+                        <VCol class="d-flex flex-wrap justify-end">
+
+                            <div class="d-flex align-center">
                                 <p class="mb-0 pr-4">
                                     每頁數量
                                 </p>
@@ -227,6 +206,7 @@ onBeforeMount(fetchProductList)
                                     @update:model-value="options.itemsPerPage = parseInt($event, 10)"
                                 />
                             </div>
+                        </VCol>
                     </VRow>
                 </VCardText>
             </template>

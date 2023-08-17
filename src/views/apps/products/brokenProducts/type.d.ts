@@ -1,11 +1,10 @@
 
 
-export type tableEntry = {
-    id: number,
-    attributes: brokenProductInfo
+export interface brokenProductInfo extends brokenProductAttributes {
+    strapi_id: number
 }
 
-export interface brokenProductInfo{
+interface brokenProductAttributes {
     date: string,
     product_id: string,
     product_name: string,
@@ -14,10 +13,15 @@ export interface brokenProductInfo{
     storehouse_name: string
 }
 
+interface nestedBrokenProductInfo {
+    id: number,
+    attributes: brokenProductAttributes,
+}
+
 export interface apiBrokenProductEntriesResponse {
     config: object
     data:   {
-        data: tableEntry[]
+        data: nestedBrokenProductInfo[]
         meta: object
     }
     header: object

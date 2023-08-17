@@ -5,7 +5,7 @@ import { useBrokenProductStore } from '@/views/apps/products/useBrokenProductSto
 
 interface Props {
     isDrawerOpen: boolean,
-    product_strapi_id: number
+    product_strapi_id?: number
 }
 
 interface Emit {
@@ -25,9 +25,17 @@ const dialogModelValueUpdate = (val: boolean) => {
 }
 
 const fetchBrokenProductInfo = async() => {
-    await brokenProductStore.fetchBrokenProduct(Number(props.product_strapi_id)).then(response => {
-        brokenProduct.value = response.data.data
-    })
+    brokenProduct.value=undefined
+    if(props.product_strapi_id){
+        await brokenProductStore.fetchBrokenProduct(Number(props.product_strapi_id)).then(response => {
+            brokenProduct.value = response.data.data.attributes
+            console.log(response)
+        })
+    }
+}
+
+const closeBrokenProductDetailDrawer = () => {
+    emit('update:isDrawerOpen', false)
 }
 
 const deleteBrokenProduct = async() => {
@@ -37,6 +45,7 @@ const deleteBrokenProduct = async() => {
 }
 
 watch(()=> props.product_strapi_id, fetchBrokenProductInfo, {immediate: true})
+
 
 </script>
 <template>
@@ -50,14 +59,15 @@ watch(()=> props.product_strapi_id, fetchBrokenProductInfo, {immediate: true})
     scrim="rgb(0, 0, 0, 0)"
     :model-value="props.isDrawerOpen">
         <AppDrawerHeaderSection
+        @cancel="closeBrokenProductDetailDrawer"
         title="壞貨詳情"/>
         <VCard 
         plain>
             <p>
-                產品稱號：{{  }}
+                產品稱號：{{ brokenProduct?.product_id }}
             </p>
             <p class="text-disabled text-h6">
-                產品名稱：{{  }}
+                產品名稱：{{ brokenProduct?.product_name }}
             </p>
         </VCard>
         <VCard
@@ -68,6 +78,7 @@ watch(()=> props.product_strapi_id, fetchBrokenProductInfo, {immediate: true})
             icon="tabler-trash"
             icon-color="error"
             @click="isConfirmDeleteBrokenProductDialogActive = true"
+            class="ml-auto"
             />
 
             <VCardText>
@@ -97,5 +108,27 @@ watch(()=> props.product_strapi_id, fetchBrokenProductInfo, {immediate: true})
                 </div>
             </VCardText>
         </VCard>
+        
+        <VDialog
+        v-model="isConfirmDeleteBrokenProductDialogActive"
+        width="500px">
+            <VCard class="pa-4">
+                <VCardTitle>
+                    Delete Broken Product
+                </VCardTitle>
+                <VCardText>
+                    Are you sure to delete broken products of {{ brokenProduct?.product_name }} ?
+                </VCardText>
+                <div class="d-flex justify-space-around">
+                    <VBtn>
+                        Delete
+                    </VBtn>
+                    <VBtn
+                    @click="isConfirmDeleteBrokenProductDialogActive=false">
+                        Cancel
+                    </VBtn>
+                </div>
+            </VCard>
+        </VDialog>
     </VNavigationDrawer>
 </template>
