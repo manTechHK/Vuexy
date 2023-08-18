@@ -31,8 +31,8 @@ const setStorehouseOptions = async () => {
             value: obj.id
         }))
     })
-
 }
+
 const setProductOptions = async () => {
     await productStore.fetchProducts().then(response => {
         options_Product_id.value = response.map((obj: { attributes: productInfo; id: number; }) => ({
