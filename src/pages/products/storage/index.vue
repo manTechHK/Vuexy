@@ -36,6 +36,7 @@ const headers=[
 
 const fetchProductList = async () => {
     await productListStore.fetchProducts().then(response => {
+        console.log(response.data)
         productList.value = response.data.data.map((item : apiProductListItem) => {
             return {
             strapi_id: item.id,
@@ -49,7 +50,7 @@ const fetchProductList = async () => {
             total_stock: item.attributes.total_stock,
             average_restock_price: item.attributes.average_restock_price}
         })
-        console.log(productList.value)
+        
     })
 }
 

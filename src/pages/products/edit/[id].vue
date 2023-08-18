@@ -1,6 +1,7 @@
 <script setup lang="ts">  
 
 import brokenProductDetailDrawer from '@/views/apps/products/brokenProductDetailDrawer.vue'
+import restockDrawer from '@/views/apps/products/restockDrawer.vue'
 import AddBrokenProductHandler from '@/views/apps/products/storage/addBrokenProductHandler.vue'
 import { BrokenProductInfo, NewBrokenProduct, ProductProperties } from '@/views/apps/products/storage/type'
 import { useProductListStore } from '@/views/apps/products/storage/useProductListStore'
@@ -9,6 +10,7 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
 
   const productListStore = useProductListStore()
   const search = ref('')
+  const isRestockDrawerActive = ref(false)
   const isBrokenProductHandlerSidebarActive = ref(false)
   const isBrokenProductDetailDrawerActive = ref(false)
   const items = ref([])
@@ -298,7 +300,8 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
       variant="flat">
         <VRow class=" flex-grow-0 gap-4 mb-3 ">
           <VBtn 
-          prepend-icon="tabler-circle-plus">
+          prepend-icon="tabler-circle-plus"
+          @click="isRestockDrawerActive=true">
             添加入貨訊息
           </VBtn>
           <VBtn
@@ -433,6 +436,11 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
     v-model:isDrawerOpen="isBrokenProductDetailDrawerActive"
     :product_strapi_id="Number(route.params.id)"
     @delete-broken-product="deleteBrokenProduct"/>
+
+  <restockDrawer
+    v-model:is-drawer-open="isRestockDrawerActive"
+    :product_strapi_id="Number(route.params.id)"
+  />
 
   </div>
 </template>

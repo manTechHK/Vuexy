@@ -8,3 +8,13 @@ export interface brokenProductProperties {
     date: string,
     remarks: string,
 }
+
+export interface apiSupplierInfo{
+
+}
+
+export interface supplierInfo {
+    name: string,
+    id: number,
+    strapi_id: number,
+}
