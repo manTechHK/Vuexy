@@ -12,7 +12,7 @@ interface Props {
 
 interface Emit {
     (e: 'update:isDrawerOpen', value: boolean): void
-    (e: 'restock', value: number): void
+    (e: 'restock', value: restockForm): void
 }
 
 const supplierStore = useSuppliersStore()
@@ -35,7 +35,7 @@ interface restockForm{
     restock_price:number | null,
     lowest_price:number | null,
     selling_price:number | null,
-    restock_distribute: {storehouse: number, quantity: number}[],
+    restock_distribute: {storehouse: number, quantity: number | null}[],
     product: number | null,
     supplier: number | null,
 }
@@ -60,8 +60,20 @@ const closeDrawer = () => {
     })
 }
 
-const onSubmit = () =>{
-    console.log(restockForm.value)
+const onSubmit = ():void =>{
+    var empty_flag = false
+    Object.keys(restockForm.value).forEach(element => {
+        const temp = restockForm.value[element as keyof typeof restockForm.value]
+        if(temp === null || restockForm_date.value === '' || restockForm_time.value ===''){
+            empty_flag = true
+        }
+    })
+    if(empty_flag){
+        return
+    }
+    emit('restock', restockForm.value)
+
+    emit('update:isDrawerOpen', false)
 }
 
 const integerFilter = (evt: KeyboardEvent) => {
@@ -88,10 +100,12 @@ const floatFilter = (evt: KeyboardEvent) => {
     }
 }
 
-// const computeStorehouse = computed((id: number, index: number) => { 
-//     restockForm.value.restock_distribute[index] = {storehouse: id, quantity: 0}
-//     return restockForm.value.restock_distribute[index].quantity
-// })
+const computeStorehouse = (storehouse: {text: string, value : number}, index: number) => {
+    if(restockForm.value.restock_distribute.length <= index){
+        restockForm.value.restock_distribute.push({storehouse: storehouse.value,quantity: null})
+    }
+    return restockForm.value.restock_distribute[index].quantity
+}
 
 const setSupplierOptions = async() => {
     const apiSupplierData = await supplierStore.fetchSuppliers()
@@ -167,7 +181,9 @@ onMounted(setStorehouseOptions)
                     prepend-inner-icon="tabler-building-bank" 
                     placeholder="請輸入" 
                     :label="storehouse.text+'數量'" 
-                    @keypress="integerFilter"/>
+                    @keypress="integerFilter"
+                    :model-value="computeStorehouse(storehouse, index)"
+                    @update:model-value="newValue => restockForm.restock_distribute[index].quantity = newValue? Number(newValue):null"/>
                 </div>
 
                 <VBtn type="submit">

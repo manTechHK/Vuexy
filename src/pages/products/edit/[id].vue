@@ -5,6 +5,7 @@ import restockDrawer from '@/views/apps/products/restockDrawer.vue'
 import AddBrokenProductHandler from '@/views/apps/products/storage/addBrokenProductHandler.vue'
 import { BrokenProductInfo, NewBrokenProduct, ProductProperties } from '@/views/apps/products/storage/type'
 import { useProductListStore } from '@/views/apps/products/storage/useProductListStore'
+import { restockForm } from '@/views/apps/products/types'
 import axios from '@axios'
 import { VDataTable } from 'vuetify/labs/VDataTable'
 
@@ -144,7 +145,14 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
     })
   }
 
-  
+  const postRestock = async (restockInfo: restockForm) => {
+    console.log(restockInfo)
+    await axios.post('/restocks/', {stock_date: restockInfo.restock_date, quantity: restockInfo.quantity, restock_price: restockInfo.restock_price, lowest_price: restockInfo.lowest_price, selling_price: restockInfo.selling_price, restock_distribute: restockInfo.restock_distribute, product: restockInfo.product, supplier: restockInfo.supplier}).then(response =>{
+      console.log(response)
+    }).catch(err => {
+      console.log(err)
+    })
+  }
   
   onMounted(setFieldDefaultValue)
 
@@ -440,6 +448,7 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
   <restockDrawer
     v-model:is-drawer-open="isRestockDrawerActive"
     :product_strapi_id="Number(route.params.id)"
+    @restock="postRestock"
   />
 
   </div>
