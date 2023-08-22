@@ -109,7 +109,7 @@ const computeStorehouse = (storehouse: {text: string, value : number}, index: nu
 
 const setSupplierOptions = async() => {
     const apiSupplierData = await supplierStore.fetchSuppliers()
-    console.log(apiSupplierData)
+
     supplierOptions.value = apiSupplierData.data.data.map((obj:{id:number, attributes: {name:string, supplier_id:string, phone_no: string, email:string, contact_person: string, create_date:string}}) => ({id: obj.attributes.supplier_id, name: obj.attributes.name, strapi_id: obj.id}))
 }
 

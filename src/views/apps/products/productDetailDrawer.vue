@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ProductProperties } from './storage/type'
-import { blankProductProperties } from './storage/useBlankProductProperties'
 import { useProductListStore } from './storage/useProductListStore'
+import { blankProductProperties } from './useBlankProductProperties'
 
 
 interface Props {
@@ -108,7 +108,7 @@ watch(()=>props.isDrawerOpen, async(val) => {
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="item in product.labels.data">
+                <tr v-for="item in product.labels?.data">
                     <td>
                         {{ item.attributes.name }}
                     </td>
@@ -161,7 +161,7 @@ watch(()=>props.isDrawerOpen, async(val) => {
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="item in product.restock">
+                <tr v-for="item in product.restocks?.data">
                     <th v-for="header in headers[3]">
                         {{ item[header.key as keyof typeof item] }}
                     </th>

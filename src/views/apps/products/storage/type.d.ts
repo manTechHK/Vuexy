@@ -34,13 +34,39 @@ interface storehouse_info{
     storehouse_address: string,
 }
 
-interface restockInfo{
-    restock_date: Datetime,
-    restock_price: number,
+interface supplierData{
+    data: supplierInfo
+}
+
+interface supplierInfo{
+    id: number,
+    attributes: supplierAttributes
+}
+
+interface supplierAttributes{
+    name: string
+}
+
+interface restockAttributes{
+    createdAt: string,
     lowest_price: number,
-    selling_price: number,
+    publishedAt: string,
     quantity: number,
-    supplier_name: string,
+    restock_date: string,
+    restock_price: number,
+    selling_price: number,
+    supplier: supplierData,
+    updatedAt: string,
+}
+
+
+interface restockInfo{
+    id: number,
+    attributes: restockAttributes
+}
+
+interface restockList {
+    data: restockInfo[]
 }
 
 interface labelData{
@@ -67,19 +93,19 @@ interface storehouseInfo{
 export interface ProductProperties{
     product_id: string,
     name: string,
-    create_date: Date | string,
-    labels: labelData,
+    create_date: string,
+    labels?: labelData ,
     variation: variantData,
     remarks: remark[],
-    new_restock_date: Datetime,
-    new_restock_price: number,
-    new_lowest_price: number,
-    new_selling_price: number,
-    total_stock: number,
-    total_broken_products: number,
+    new_restock_date: string ,
+    new_restock_price: number | null = null,
+    new_lowest_price: number | null = null,
+    new_selling_price: number | null = null,
+    total_stock: number | null = null,
+    total_broken_products: number | null,
     storehouse_info: storehouseInfo[],
-    restock: restockInfo[],
-    average_restock_price: number,
+    restocks: restockList,
+    average_restock_price: number | null = null,
 
 }
 
@@ -97,7 +123,7 @@ export interface ProductDetails {
 
 
 export interface apiProductList{
-    item: apiProductListItem[]
+    data: apiProductListItem[]
 }
 
 export interface apiProductListItem{
@@ -116,6 +142,7 @@ export interface ProductInfo{
     name: string,
     new_supplier: string,
     new_restock_date: string,
+    new_restock_time: string,
     new_restock_price: number,
     new_lowest_price: number,
     new_selling_price: number,
@@ -123,6 +150,14 @@ export interface ProductInfo{
     average_restock_price: number,
 }
 
+export interface newProductForm{
+    product_id: string,  //unique
+    name: string,
+    create_date: string,
+    labels: (number | null)[],
+    variantion: number[],
+    remarks: string[]
+}
 
 export interface apiProductEntriesResponse {
     config: object
@@ -153,4 +188,16 @@ export  interface NewBrokenProduct {
     storehouse_id:  number,
     date:       string,
     remarks:    string,
+}
+
+export interface Response <T= any>{
+    data: T;
+    meta: pagination;
+}
+
+interface pagination{
+    page: number,
+    pageCount: number,
+    pageSize: number,
+    total: number,
 }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import productDetailDrawer from '@/views/apps/products/productDetailDrawer.vue'
-import { apiProductListItem, ProductInfo } from '@/views/apps/products/storage/type'
+import { ProductInfo } from '@/views/apps/products/storage/type'
 import { useProductListStore } from '@/views/apps/products/storage/useProductListStore'
 import type { Options } from '@core/types'
 import { VDataTable } from 'vuetify/labs/VDataTable'
@@ -36,14 +36,15 @@ const headers=[
 
 const fetchProductList = async () => {
     await productListStore.fetchProducts().then(response => {
-        console.log(response.data)
-        productList.value = response.data.data.map((item : apiProductListItem) => {
+        console.log(response)
+        productList.value = response.data.data.map(item => {
             return {
             strapi_id: item.id,
             product_id: item.attributes.product_id,
             name: item.attributes.name,
             new_supplier:  item.attributes.new_supplier,
-            new_restock_date: item.attributes.new_restock_date,
+            new_restock_date: item.attributes.new_restock_date?.substring(2,10),
+            new_restock_time: item.attributes.new_restock_date?.substring(11,19),
             new_restock_price: item.attributes.new_restock_price,
             new_lowest_price: item.attributes.new_lowest_price,
             new_selling_price: item.attributes.new_selling_price,
@@ -51,7 +52,7 @@ const fetchProductList = async () => {
             average_restock_price: item.attributes.average_restock_price}
         })
         
-    })
+    }).catch(error => console.log(error))
 }
 
 // const navEditProduct = (selectedProduct:any) => {
@@ -85,7 +86,7 @@ const updateProductDrawerIndex = (strapi_id: number) => {
 const showData = () =>{
     console.log(productList.value)
 }
-onBeforeMount(fetchProductList)
+watchEffect(fetchProductList)
 
 </script>
 <template>
@@ -122,7 +123,8 @@ onBeforeMount(fetchProductList)
         </VCol>
         <VCol class="d-flex flex-grow-0 pa-1">
             <VBtn 
-             prepend-icon="tabler-circle-plus">
+             prepend-icon="tabler-circle-plus"
+             :to="{ name: 'products-storage-addNewProduct' }">
                 添加產品資料
             </VBtn>
         </VCol>

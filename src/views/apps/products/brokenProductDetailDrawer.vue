@@ -29,7 +29,6 @@ const fetchBrokenProductInfo = async() => {
     if(props.product_strapi_id){
         await brokenProductStore.fetchBrokenProduct(Number(props.product_strapi_id)).then(response => {
             brokenProduct.value = response.data.data.attributes
-            console.log(response)
         })
     }
 }
