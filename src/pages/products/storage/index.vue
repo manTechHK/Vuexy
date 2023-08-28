@@ -1,22 +1,42 @@
 <script setup lang="ts">
 
 import productDetailDrawer from '@/views/apps/products/productDetailDrawer.vue'
+import SearchProductDrawer from '@/views/apps/products/searchProductDrawer.vue'
 import { ProductInfo } from '@/views/apps/products/storage/type'
 import { useProductListStore } from '@/views/apps/products/storage/useProductListStore'
-import type { Options } from '@core/types'
+import { filterOptions, Options } from '@/views/apps/products/types'
+import { useLabelStore } from '@/views/apps/products/useLabelStore'
 import { VDataTable } from 'vuetify/labs/VDataTable'
+
+interface labelItem{
+    id: number,
+    name: string,
+}
 
 const router = useRouter()
 const isProductDetailDrawerActive = ref(false)
+const isSearchProductDrawerActive = ref(false)
+
+const selectedLabel = ref()
+const selectedDate = ref<string>()
+
 const productListStore = useProductListStore()
+const labelStore = useLabelStore()
+
 const productDrawerIndex = ref(NaN)
+const labelOptions = ref<labelItem[]>([])
 const productList = ref<ProductInfo[]>([])
 const options = ref<Options>({
   page: 1,
   itemsPerPage: 10,
-  sortBy: [],
-  groupBy: [],
-  search: undefined,
+  filter: {
+    period: '',
+    product_id: '',
+    product_name: ''
+    },
+  query: {
+    new_restock_date: '',
+  }
 })
 
 const headers=[
@@ -35,16 +55,16 @@ const headers=[
 
 
 const fetchProductList = async () => {
-    await productListStore.fetchProducts().then(response => {
-        console.log(response)
+    await productListStore.fetchProducts(options.value.query.label, options.value.query.supplier, options.value.query.new_restock_date).then(response => {
+        // console.log(options.value.query)
         productList.value = response.data.data.map(item => {
             return {
             strapi_id: item.id,
             product_id: item.attributes.product_id,
             name: item.attributes.name,
             new_supplier:  item.attributes.new_supplier,
-            new_restock_date: item.attributes.new_restock_date?.substring(2,10),
-            new_restock_time: item.attributes.new_restock_date?.substring(11,19),
+            new_restock_date: item.attributes.new_restock_date?.match(RegExp(/\d{4}\-\d{2}\-\d{2}/))![0],
+            new_restock_time: item.attributes.new_restock_date?.match(RegExp(/\d{2}\:\d{2}\:\d{2}/))![0],
             new_restock_price: item.attributes.new_restock_price,
             new_lowest_price: item.attributes.new_lowest_price,
             new_selling_price: item.attributes.new_selling_price,
@@ -53,6 +73,18 @@ const fetchProductList = async () => {
         })
         
     }).catch(error => console.log(error))
+}
+
+const getLabelOptions = async() => {
+    await labelStore.fetchLabels().then(response =>{
+        if(response.data.data.length){
+            response.data.data.forEach(label => (
+            labelOptions.value.push({
+                id: label.id,
+                name: label.attributes.name
+            })))
+        }
+    }).catch(err => console.log(err))
 }
 
 // const navEditProduct = (selectedProduct:any) => {
@@ -65,6 +97,8 @@ const fetchProductList = async () => {
 //     }
 // }
 
+
+
 const paginationMeta = computed(() => {
   return <T extends { page: number; itemsPerPage: number }>(options: T, total: number) => {
     const start = (options.page - 1) * options.itemsPerPage + 1
@@ -73,6 +107,24 @@ const paginationMeta = computed(() => {
     return `${start} - ${end} of ${total}`
   }
 })
+const filterTableItems = (product : ProductInfo ):boolean  => {
+  return searchFilter({product_id: product.product_id, product_name: product.name, period: product.new_restock_time})
+}
+
+// const labelFilter = (labels: labelItem[]):boolean => {
+//     if(!selectedLabel.value){
+//         return true
+//     }
+//     return labels.some(({id}) => {
+//         id === selectedLabel.value.id
+//     })
+// }
+
+
+
+const searchFilter = (search : filterOptions) => {
+  return (options.value.filter.product_id? search.product_id.includes(options.value.filter.product_id):true) && (options.value.filter.product_name?  search.product_name.includes(options.value.filter.product_name ):true)
+}
 
 const openProductDetailDrawer =  (strapi_id: number) => {
     updateProductDrawerIndex(strapi_id)
@@ -83,10 +135,16 @@ const updateProductDrawerIndex = (strapi_id: number) => {
     productDrawerIndex.value = strapi_id
 }
 
+const updateSearchQuery = (query: Omit<filterOptions, 'period'>) => {
+    options.value.filter = {product_id: query.product_id, product_name: query.product_name, period: options.value.filter.period}
+}
+
 const showData = () =>{
     console.log(productList.value)
 }
 watchEffect(fetchProductList)
+watch(()=>options.value.query, fetchProductList)
+watchEffect(getLabelOptions)
 
 </script>
 <template>
@@ -106,18 +164,31 @@ watchEffect(fetchProductList)
     </VCol>
     <VCol class="d-flex flex-wrap flex-grow-0 pa-2">
         <VCol class="pa-1">
-            <VAutocomplete></VAutocomplete>
+            <VAutocomplete
+            v-model="options.query.label"
+            hide-selected
+            label="標籤"
+            :items="labelOptions"
+            item-title="name"
+            item-value="id">
+
+            </VAutocomplete>
         </VCol>
         <VCol class="pa-1">
-            <VAutocomplete></VAutocomplete>
+            <VAutocomplete
+            v-model="options.filter.period"
+            />
         </VCol>
         <VCol class="pa-1">
             <AppDateTimePicker
+            v-model="options.query.new_restock_date"
             prepend-inner-icon="tabler-calendar"
             />
         </VCol>
         <VCol class="pa-1">
             <AppTextField
+            readonly
+            @click="isSearchProductDrawerActive=true"
             append-inner-icon="tabler-search"
             />
         </VCol>
@@ -141,7 +212,7 @@ watchEffect(fetchProductList)
         v-model:items-per-page="options.itemsPerPage"
         v-model:page="options.page"
         :headers="headers"
-        :items="productList"
+        :items="productList.filter(filterTableItems)"
 
         class="d-flex flex-column justify-space-between text-no-wrap">
             <template #item.total_stock = "{item}">
@@ -177,7 +248,7 @@ watchEffect(fetchProductList)
                     <VRow class="justify-space-between align-center">
                         <VCol>
                             <p class="text-sm text-disabled mb-0">
-                                {{ paginationMeta(options, productList.length) }}
+                                {{ paginationMeta(options, productList.filter(filterTableItems).length) }}
                             </p>
                         </VCol>
                         <VCol>
@@ -185,8 +256,8 @@ watchEffect(fetchProductList)
                             variant="text"
                             rounded="circle"
                             v-model="options.page"
-                            :length="Math.ceil(productList.length / options.itemsPerPage)"
-                            :total-visible="$vuetify.display.xs ? 1 : Math.ceil(productList.length / options.itemsPerPage)"
+                            :length="Math.ceil(productList.filter(filterTableItems).length / options.itemsPerPage)"
+                            :total-visible="$vuetify.display.xs ? 1 : Math.ceil(productList.filter(filterTableItems).length / options.itemsPerPage)"
                             >
                             </VPagination>
                         </VCol>
@@ -221,5 +292,8 @@ watchEffect(fetchProductList)
     v-model:product_strapi_id="productDrawerIndex">
 
 </productDetailDrawer>
+<SearchProductDrawer
+    v-model:is-drawer-open="isSearchProductDrawerActive"
+    @search="updateSearchQuery"/>
 </div>
 </template>

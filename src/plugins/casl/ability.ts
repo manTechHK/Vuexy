@@ -4,7 +4,7 @@ import type { UserAbility } from './AppAbility'
 export const initialAbility: UserAbility[] = [
   {
     action: 'read',
-    subject: 'Auth',
+    subject: 'all',
   },
 ]
 

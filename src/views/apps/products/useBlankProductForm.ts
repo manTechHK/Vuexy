@@ -4,6 +4,6 @@ export const blankProductForm = <newProductForm>{
     name: '',
     create_date: '',
     labels: [],
-    variantion: [],
+    variation: [],
     remarks: []
 }

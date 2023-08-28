@@ -6,7 +6,7 @@ export const blankProductProperties = <ProductProperties>(
         name: '',
         create_date: '',
         labels: {data: []},
-        variation: {data: [{attributes: {name:'', createdAt:'', isShow: true, publishedAt:'', updatedAt: ''}, id: -1}]},
+        variation: {data: []},
         remarks: [{content: '', id: -1}] ,
         new_restock_date: '',
         new_restock_price: null,

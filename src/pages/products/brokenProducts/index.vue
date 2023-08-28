@@ -1,18 +1,21 @@
 <script setup lang="ts">  
 
 
-// import { useBrokenProductStore } from '@/views/apps/product/storage/';
+
 import brokenProductDetailDrawer from '@/views/apps/products/brokenProductDetailDrawer.vue';
-import { apiBrokenProductEntriesResponse, brokenProductInfo, Options } from '@/views/apps/products/brokenProducts/type';
+import { apiBrokenProductEntriesResponse, brokenProductInfo, Options, searchItem } from '@/views/apps/products/brokenProducts/type';
+import searchProductDrawer from '@/views/apps/products/searchProductDrawer.vue';
 import axios from '@axios';
 import { VDataTable } from 'vuetify/labs/VDataTable';
-
-
+ 
 const currentOptions = ref<Options>({
   filter: {
     period: '',
     date: '',
-    search: ''
+    search: {
+      product_id: '',
+      product_name: ''
+    }
   },
   itemsPerPage: 10,
   page: 1,
@@ -21,6 +24,7 @@ const currentOptions = ref<Options>({
   const productID = ref()
   const prodcutName = ref('')
   const isBrokenProductHandlerSidebarActive = ref(false)
+  const isSearchProductDrawerActive = ref(false)
   const brokenProducts = ref<brokenProductInfo[]>([])
   const singleSelect = ref(false)
   const selected = ref([])
@@ -86,7 +90,24 @@ const brokenProductTableEntries = async ()  => {
   }
 }
 
+const filterTableItems = (itemList : brokenProductInfo ):boolean  => {
+  console.log(currentOptions.value.filter)
+  return dateFilter(itemList.date) && searchFilter({product_id: itemList.product_id, product_name: itemList.product_name})
+}
 
+const dateFilter = (date : string):boolean =>{
+  return currentOptions.value.filter.date? currentOptions.value.filter.date === date : true
+} 
+
+const searchFilter = (search : searchItem) => {
+  return (currentOptions.value.filter.search.product_id? search.product_id.includes(currentOptions.value.filter.search.product_id):true) && (currentOptions.value.filter.search.product_name?  search.product_name.includes(currentOptions.value.filter.search.product_name ):true)
+}
+
+const updateSearchQuery = (query: searchItem) =>{
+  console.log('update query')
+  currentOptions.value.filter.search.product_id = query.product_id
+  currentOptions.value.filter.search.product_name = query.product_name
+}
 
 onMounted(brokenProductTableEntries)
 
@@ -114,17 +135,18 @@ onMounted(brokenProductTableEntries)
         prepend-inner-icon="tabler-calendar"
         class="flex-fill"
         style="min-width: 200px;"
-        :config="{ dateFormat: 'Y.m.d' }"
+        :config="{ dateFormat: 'Y-m-d' }"
         v-model="currentOptions.filter.date"
       />
       <AppTextField
-        v-model="currentOptions.filter.search"
+        v-model="currentOptions.filter.search.product_id"
+        append-inner-icon="tabler-search"
       >
         
       </AppTextField>
       <VBtn 
       prepend-icon="tabler-circle-plus"
-      @click="">
+      @click="isSearchProductDrawerActive = true">
         搜索
       </VBtn>
       <VBtn
@@ -143,7 +165,7 @@ onMounted(brokenProductTableEntries)
         :headers="headers"
         v-model:items-per-page="currentOptions.itemsPerPage"
         v-model:page="currentOptions.page"
-        :items="brokenProducts"
+        :items="brokenProducts.filter(filterTableItems)"
         class="d-flex flex-column justify-space-between"
 
         >
@@ -171,8 +193,8 @@ onMounted(brokenProductTableEntries)
                             variant="text"
                             rounded="circle"
                             v-model="options.page"
-                            :length="Math.ceil(brokenProducts.length / currentOptions.itemsPerPage)"
-                            :total-visible="$vuetify.display.xs ? 1 : Math.ceil(brokenProducts.length / currentOptions.itemsPerPage)"
+                            :length="Math.ceil(brokenProducts.filter(filterTableItems).length / currentOptions.itemsPerPage)"
+                            :total-visible="$vuetify.display.xs ? 1 : Math.ceil(brokenProducts.filter(filterTableItems).length / currentOptions.itemsPerPage)"
                             >
 
                             </VPagination>
@@ -203,6 +225,9 @@ onMounted(brokenProductTableEntries)
     v-model:isDrawerOpen="isBrokenProductDetailDrawerActive"
     v-model:product_strapi_id="brokenProductDetailDrawerStrapiIndex"
     @delete-broken-product="deleteBrokenProduct"/>
+    <searchProductDrawer
+    v-model:is-drawer-open="isSearchProductDrawerActive"
+    @search="updateSearchQuery"/>
   </div>
 </template>
 
@@ -233,6 +258,10 @@ onMounted(brokenProductTableEntries)
       white-space: nowrap;
     }
   }
+}
+
+.v-icon path{
+  stroke-width: 2;
 }
 
 #table .v-data-footer {

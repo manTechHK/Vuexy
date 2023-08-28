@@ -31,14 +31,20 @@ export interface apiBrokenProductEntriesResponse {
 }
 
 
-interface filterOption{
-    period? : string,
-    date? : string,
-    search? : string,
+export interface filterOption{
+    period : string,
+    date : string,
+    search : searchItem,
+    label: labelInfo,
+}
+
+export interface searchItem {
+    product_id: string,
+    product_name: string,
 }
 
 export interface Options{
-    filter : filterOption,
+    filter : Partial<filterOption>,
     itemsPerPage : number,
     page: number,
 }

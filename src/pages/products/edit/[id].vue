@@ -2,10 +2,13 @@
 
 import brokenProductDetailDrawer from '@/views/apps/products/brokenProductDetailDrawer.vue'
 import restockDrawer from '@/views/apps/products/restockDrawer.vue'
+import stockReallocateDrawer from '@/views/apps/products/stockReallocateDrawer.vue'
 import AddBrokenProductHandler from '@/views/apps/products/storage/addBrokenProductHandler.vue'
-import { BrokenProductInfo, NewBrokenProduct, ProductProperties } from '@/views/apps/products/storage/type'
+import { BrokenProductInfo, NewBrokenProduct, newProductForm, ProductProperties, storehouseInfo } from '@/views/apps/products/storage/type'
 import { useProductListStore } from '@/views/apps/products/storage/useProductListStore'
 import { restockForm } from '@/views/apps/products/types'
+import { blankProductForm } from '@/views/apps/products/useBlankProductForm'
+import { blankProductProperties } from '@/views/apps/products/useBlankProductProperties'
 import { useBrokenProductStore } from '@/views/apps/products/useBrokenProductStore'
 import { useLabelStore } from '@/views/apps/products/useLabelStore'
 import axios from '@axios'
@@ -15,27 +18,23 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
   const brokenProductStore = useBrokenProductStore()
   const labelStore = useLabelStore()
   const search = ref('')
+
+
   const isRestockDrawerActive = ref(false)
   const isBrokenProductHandlerSidebarActive = ref(false)
   const isBrokenProductDetailDrawerActive = ref(false)
-  const items = ref([])
-  const productData = ref<ProductProperties>({
-    product_id: '',
-    name: '',
-    create_date: '',
-    labels: {data: [{attributes: {name:'', createdAt:'', isShow: true, publishedAt:'', updatedAt: ''}, id: -1}]},
-    variation: {data: [{attributes: {name:'', createdAt:'', isShow: true, publishedAt:'', updatedAt: ''}, id: -1}]},
-    remarks: [{content: '', id: -1}] ,
-    new_restock_date: '',
-    new_restock_price: NaN,
-    new_lowest_price: NaN,
-    new_selling_price: NaN,
-    total_stock: NaN,
-    total_broken_products: NaN,
-    storehouse_info: [],
-    restocks: {data:[]},
-    average_restock_price: NaN,
+  const isStockReallocateDrawerActive = ref(false)
+  const stockReallocate_storehouse = ref<storehouseInfo>({
+    storehouse_id: '',
+    storehouse_name: '',
+    quantity: 0,
+    phone_no: '',
+    storehouse_address: '',
   })
+
+  const items = ref([])
+  const productForm = ref<newProductForm>(blankProductForm)
+  const productData = ref<ProductProperties>(blankProductProperties)
   const restockTable = ref()
   type productKey = keyof ProductProperties
 
@@ -102,9 +101,11 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
   const labels = ref<label[]>([{name: '', id: -1}])
   const variants = ref<variant[]>([{name: '', id: -1}])
   const remarks = ref<remark[]>([{content: '', id: -1}])
-  const labelOptions = ref<label[]>([])
+
 
   const labelOptionStore = ref<label[]>([])
+  const selectedLabels = ref<(label | null)[]>([])
+  const labelOptions = ref<label[]>([])
 
   remarks.value[0] = {content : '', id:1}
 
@@ -112,7 +113,8 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
   const setFieldDefaultValue = async() => {
     if(route.params.id){
       await productListStore.fetchProduct(Number(route.params.id)).then(response => {
-        productData.value = response.data.data.attributes
+        Object.assign(productData.value, response.data.data.attributes)
+        console.log(productData.value)
         brokenProduct.value.strapi_id = response.data.data.id
         brokenProduct.value.product_id = response.data.data.attributes.product_id
         brokenProduct.value.name = response.data.data.attributes.name
@@ -129,14 +131,39 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
           supplier_name: obj.attributes.supplier.data.attributes.name
         }
       }))
-  
-      labels.value = productData.value.labels? productData.value.labels.data.map(label => ({name: label.attributes.name, id: label.id})):
-      variants.value = productData.value.variation.data.map(variant => ({name: variant.attributes.name, id: variant.id}))
-      remarks.value = productData.value.remarks.length>0?productData.value.remarks:remarks.value
+      selectedLabels.value = productData.value.labels.data.map(label => ({name: label.attributes.name, id: label.id}))
     }
 
   }
-  const setLabelOptions = async () =>{
+
+  const openStockReallocateDrawer = (storehouse: storehouseInfo) => {
+    stockReallocate_storehouse.value = storehouse
+    isStockReallocateDrawerActive.value = true
+  }
+
+  // const updateLabelOptions = () => {
+  //   // productForm.value.labels = []
+  //   // selectedLabels.value.forEach(obj => {
+  //   //     if(obj!== null){
+  //   //         productForm.value.labels.push(obj.id)
+  //   //     }
+  //   // })
+  //   labelOptions.value = labelOptionStore.value.filter(obj => !labels.value.some(label => obj.id === label.id))
+
+  // }
+
+  const updateProductForm = () => {
+    if(productData.value){
+      productForm.value.product_id = productData.value.product_id
+      productForm.value.name = productData.value.name
+      productForm.value.create_date = productData.value.create_date
+      productForm.value.labels = productData.value.labels.data.map(label => label.id)
+      productForm.value.variation = productData.value.variation.data.map(variation => variation.id)
+      productForm.value.remarks = productData.value.remarks.map(remark => remark.content)
+    }
+    console.log('updated form')
+  }
+  const fetchLabelOptions = async () =>{
     await labelStore.fetchLabels().then(response => {
       labelOptionStore.value = response.data.data.map((obj:{id: number, attributes:{name: string, isShow: boolean}})=> ({name: obj.attributes.name, id: obj.id}))
     })
@@ -173,20 +200,23 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
     })
   }
 
-//  const updateLabelOptions =  ()=> {
-//     labelOptions.value = labelOptionStore.value.filter(item =>  {
-//       // console.log(!labels.value.includes({id: item.id, name: item.name}))
-//       var selectedLabels= labels.value.map(obj => 
-//         obj.id
-//       )
-//       console.log(!selectedLabels.includes(item.id))
-//       return !selectedLabels.includes(item.id)}
-//       )
-//       console.log(labelOptions.value)
-//     }
+  const updateFormLabels = () => {
+    // productForm.value.labels = []
+    // selectedLabels.value.forEach(obj => {
+    //     if(obj!== null){
+    //         productForm.value.labels.push(obj.id)
+    //     }
+    // })
+    productForm.value.labels = (selectedLabels.value.filter(obj => (obj!==null))).map(obj => obj!.id)
+    console.log(selectedLabels.value)
+    console.log(productForm.value.labels)
+  }
+
   
   watchEffect(setFieldDefaultValue)
-  watchEffect(setLabelOptions)
+  watchEffect(fetchLabelOptions)
+  watch(()=>selectedLabels.value, updateFormLabels, {deep: true})
+  watchEffect(updateProductForm)
 //  watch(()=>labels.value, updateLabelOptions, {immediate: true})
 
 //  const addlabel = ()
@@ -208,21 +238,21 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
             產品編輯
           </VCardText>
           <VTextField
-            v-model="productData.product_id"
+            v-model="productForm.product_id"
             label="產品編號"
             class="pa-2"
             >
 
           </VTextField>
           <VTextField
-            v-model="productData.name"
+            v-model="productForm.name"
             label="產品名稱"
             class="pa-2"
             >
 
           </VTextField>
           <AppDateTimePicker
-            v-model="productData.create_date"
+            v-model="productForm.create_date"
             label="建立日期"
             prepend-inner-icon="tabler-calendar"
             readonly
@@ -244,24 +274,27 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
               prepend-icon="tabler-circle-plus"
               density="compact"
               class="d-flex ml-auto text-normal"
-              @click="labels.push({id: labels.length+1, name: ''})">
+              @click="selectedLabels.push(null)">
                 添加標簽
               </VBtn>
             </VCol>
           </VRow>
-            <VCol v-for= "label in labels"
-              :key="label.id"
+            <VCol v-for= "(label, index) in selectedLabels"
               class="pa-2">
               <AppSelect
               hide-selected
-              v-model="labels[labels.indexOf(label)]"
+              v-model="selectedLabels[index]"
               append-icon="tabler-trash"
               placeholder="選擇標簽"
-              :items="labelOptions"
+              :items="labelOptionStore.filter(label => !(selectedLabels.some(selectedLabel => {
+                if(selectedLabel !== null){
+                    return selectedLabel.id === label.id
+                }else return false
+              })))"
               item-title="name"
-              item-value="id"
-              @click:append="labels.splice(labels.indexOf(label), 1)"
+              @click:append="selectedLabels.splice(index, 1)"
               class="icon-trash"
+              return-object
               >
 
               </AppSelect>
@@ -285,14 +318,11 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
               </VBtn>
             </VCol>
           </VRow>
-            <VCol v-for= "variant in variants"
-              :key="variant.id"
+            <VCol v-for= "variant in productForm.variation"
               class="pa-2">
               <AppSelect
               append-icon="tabler-trash"
               placeholder="選擇樣色"
-
-              @click:append="variants.splice(variants.indexOf(variant), 1)"
               class="icon-trash"
               >
 
@@ -407,11 +437,24 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
           v-if="productData.storehouse_info.length!==0"
           no-data-text=""
           :headers="headers[1]"
+          :items="productData.storehouse_info"
           class="">
-            <template #body>
-              <tr v-for="item in productData.storehouse_info">
+            <template #item="{ item, index }">
+              <tr >
                 <td v-for="header in headers[1]" style="height: 45px;">
-                  {{ item[header.key as keyof typeof item] }}
+                  <div v-if="header.key!=='storehouse_address'">
+                    {{ item.raw[header.key as keyof typeof item] }}
+
+                  </div>
+                  <div v-else class="d-flex align-center justify-space-between pr-0">
+                    <div>
+                      {{ item.raw[header.key as keyof typeof item] }}
+                    </div>
+                    <text
+                    @click="openStockReallocateDrawer(item.raw)">
+                      編輯
+                    </text>
+                  </div>
                 </td>
               </tr>
             </template>
@@ -489,7 +532,10 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
     :product_strapi_id="Number(route.params.id)"
     @restock="postRestock"
   />
-
+  <stockReallocateDrawer
+    v-model:is-drawer-open="isStockReallocateDrawerActive"
+    :storehouse="stockReallocate_storehouse"
+  />
   </div>
 </template>
 

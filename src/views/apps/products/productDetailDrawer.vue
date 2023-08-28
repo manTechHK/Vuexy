@@ -9,6 +9,9 @@ interface Props {
     product_strapi_id: number,
 }
 
+const date_regex: RegExp =  /(.*)T/
+const time_regex: RegExp = /T(.*).\d{3}Z/
+
 interface Emit {
     (e: 'update:isDrawerOpen', value: boolean):void
 }
@@ -46,11 +49,11 @@ const headers=[
 ]
 
 const fetchProductInfo = async() => {
-    //current major delay is api fetch, can consider fetching entire page of product when getting product list
+    //current major delay is api fetch, could consider fetching entire page of product when getting product list
     await productListStore.fetchProduct(Number(props.product_strapi_id)).then(response => {
-        product.value = response.data.data.attributes
+        product.value = (({variation, ...others}) => ({variation: blankProductProperties.variation ,...others}))(response.data.data.attributes)
     })
-    console.log(product.value)
+    console.log(product.value.restocks.data[0].attributes.restock_date.match(date_regex))
 }
 
 const closeProductDetailDrawer = () => {
@@ -160,11 +163,29 @@ watch(()=>props.isDrawerOpen, async(val) => {
                     </th>
                 </tr>
             </thead>
-            <tbody>
-                <tr v-for="item in product.restocks?.data">
-                    <th v-for="header in headers[3]">
-                        {{ item[header.key as keyof typeof item] }}
-                    </th>
+            <tbody v-if="product.restocks.data">
+                <tr v-for="item in product.restocks.data">
+                    <td >
+                        {{ item.attributes.restock_date!==null? item.attributes.restock_date.match(date_regex)!== null? item.attributes.restock_date.match(date_regex)![1]:'-':'-' }}
+                    </td>
+                    <td >
+                        {{  item.attributes.restock_date!==null? item.attributes.restock_date.match(time_regex)!== null? item.attributes.restock_date.match(time_regex)![1]:'-':'-'  }}
+                    </td>
+                    <td >
+                        {{ item.attributes.restock_price}}
+                    </td>
+                    <td >
+                        {{ item.attributes.lowest_price }}
+                    </td>
+                    <td >
+                        {{ item.attributes.selling_price }}
+                    </td>
+                    <td >
+                        {{ item.attributes.quantity }}
+                    </td>
+                    <td >
+                        {{ item.attributes.supplier.data.attributes.name }}
+                    </td>
                 </tr>
                 <tr></tr>
             </tbody>

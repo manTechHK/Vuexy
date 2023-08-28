@@ -6,8 +6,6 @@ import AddBrokenProductHandler from '@/views/apps/products/storage/addBrokenProd
 import { BrokenProductInfo, NewBrokenProduct, newProductForm, ProductProperties } from '@/views/apps/products/storage/type'
 import { useProductListStore } from '@/views/apps/products/storage/useProductListStore'
 import { restockForm } from '@/views/apps/products/types'
-import { blankProductForm } from '@/views/apps/products/useBlankProductForm'
-import { blankProductProperties } from '@/views/apps/products/useBlankProductProperties'
 import { useLabelStore } from '@/views/apps/products/useLabelStore'
 import axios from '@axios'
 import { VDataTable } from 'vuetify/labs/VDataTable'
@@ -22,8 +20,31 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
   const selectedLabels = ref<(label | null)[]>([])
   const items = ref([])
 
-  const productForm = ref<newProductForm>(blankProductForm)
-    const productData = ref<ProductProperties>(blankProductProperties)
+  const productForm = ref<newProductForm>({
+    product_id: '',
+    name: '',
+    create_date: '',
+    labels: [],
+    variation: [],
+    remarks: []
+})
+  const productData = ref<ProductProperties>({
+        product_id: '',
+        name: '',
+        create_date: '',
+        labels: {data: []},
+        variation: {data: []},
+        remarks: [{content: '', id: -1}] ,
+        new_restock_date: '',
+        new_restock_price: null,
+        new_lowest_price: null,
+        new_selling_price: null,
+        total_stock: null,
+        total_broken_products: null,
+        storehouse_info: [],
+        restocks: {data: []},
+        average_restock_price: null,
+      })
   const restockTable = ref()
   const brokenProduct = ref<BrokenProductInfo>({
     strapi_id: 0,
@@ -143,6 +164,7 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
     const labelOptionStore = ref<label[]>([])
 
     const setLabelOptions = async () =>{
+      console.log(productForm.value)
     await labelStore.fetchLabels().then(response => {
       labelOptionStore.value = response.data.data.map((obj:{id: number, attributes:{name: string, isShow: boolean}})=> ({name: obj.attributes.name, id: obj.id}))
     })
@@ -155,11 +177,9 @@ import { VDataTable } from 'vuetify/labs/VDataTable'
     //     }
     // })
     productForm.value.labels = (selectedLabels.value.filter(obj => (obj!==null))).map(obj => obj!.id)
-    console.log(selectedLabels.value)
-    console.log(productForm.value.labels)
   }
 
-  onMounted(setLabelOptions)
+  watchEffect(setLabelOptions)
 //  const addlabel = ()
   watch(()=>selectedLabels.value, updateFormLabels, {deep: true})
 </script>

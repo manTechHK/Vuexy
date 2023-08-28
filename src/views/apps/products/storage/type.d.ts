@@ -82,7 +82,7 @@ export interface remark {
     id: number,
 }
 
-interface storehouseInfo{
+export interface storehouseInfo{
     storehouse_id: string,
     storehouse_name: string,
     quantity: number,
@@ -94,7 +94,7 @@ export interface ProductProperties{
     product_id: string,
     name: string,
     create_date: string,
-    labels?: labelData ,
+    labels: labelData ,
     variation: variantData,
     remarks: remark[],
     new_restock_date: string ,
@@ -155,7 +155,7 @@ export interface newProductForm{
     name: string,
     create_date: string,
     labels: (number | null)[],
-    variantion: number[],
+    variation: number[],
     remarks: string[]
 }
 
