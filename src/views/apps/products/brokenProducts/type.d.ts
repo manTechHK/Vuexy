@@ -32,10 +32,9 @@ export interface apiBrokenProductEntriesResponse {
 
 
 export interface filterOption{
-    period : string,
-    date : string,
+    storehouse? : number,
+    date? : string,
     search : searchItem,
-    label: labelInfo,
 }
 
 export interface searchItem {
@@ -44,7 +43,7 @@ export interface searchItem {
 }
 
 export interface Options{
-    filter : Partial<filterOption>,
+    filter : filterOption,
     itemsPerPage : number,
     page: number,
 }

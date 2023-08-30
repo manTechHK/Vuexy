@@ -56,7 +56,7 @@ const headers=[
 
 const fetchProductList = async () => {
     await productListStore.fetchProducts(options.value.query.label, options.value.query.supplier, options.value.query.new_restock_date).then(response => {
-        // console.log(options.value.query)
+         console.log(response)
         productList.value = response.data.data.map(item => {
             return {
             strapi_id: item.id,

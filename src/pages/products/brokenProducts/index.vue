@@ -3,14 +3,13 @@
 
 
 import brokenProductDetailDrawer from '@/views/apps/products/brokenProductDetailDrawer.vue';
-import { apiBrokenProductEntriesResponse, brokenProductInfo, Options, searchItem } from '@/views/apps/products/brokenProducts/type';
+import { brokenProductInfo, Options, searchItem } from '@/views/apps/products/brokenProducts/type';
 import searchProductDrawer from '@/views/apps/products/searchProductDrawer.vue';
-import axios from '@axios';
+import { useBrokenProductStore } from '@/views/apps/products/useBrokenProductStore';
 import { VDataTable } from 'vuetify/labs/VDataTable';
  
 const currentOptions = ref<Options>({
   filter: {
-    period: '',
     date: '',
     search: {
       product_id: '',
@@ -20,7 +19,9 @@ const currentOptions = ref<Options>({
   itemsPerPage: 10,
   page: 1,
 })
+  const brokenProductStore = useBrokenProductStore()
 
+  const searchField = ref('')
   const productID = ref()
   const prodcutName = ref('')
   const isBrokenProductHandlerSidebarActive = ref(false)
@@ -38,12 +39,6 @@ const currentOptions = ref<Options>({
     id: number,
   }
   const numericRule =  (v:string) => [/^\d+$/.test(v) || 'Input must be a number']
-
-
-
-  const TableData=[
-    {latestStockingDate: '0', latestStockingTime: '1', latestStockingCost: '2', latestMinStockingCost: '3', latestPrice: '4', stocks: '5', defected: '6', stockingDate: '7', stockingTime: '8', stockingCost: '9', minStockingCost: '10', price: '11', stockingVolumn: '12', supplier:'13', avgStockingPrice:'14'},
-  ]
 
 
   const headers=[
@@ -82,34 +77,36 @@ const deleteBrokenProduct = (strapi_id: number)=>{
 }
 
 const brokenProductTableEntries = async ()  => {
-  var response  = <apiBrokenProductEntriesResponse> await axios.get('broken-products')
+  // var response  = <apiBrokenProductEntriesResponse> await axios.get('broken-products')
   // console.log(response.data.data)
-
-  for(let i = 0; i < response.data.data.length; i++){
-    brokenProducts.value[i] = {strapi_id: response.data.data[i].id, ...response.data.data[i].attributes}
-  }
+  // console.log(currentOptions.value.filter)
+  await brokenProductStore.fetchBrokenProducts(currentOptions.value.filter.storehouse, currentOptions.value.filter.date).then((response) => {
+      brokenProducts.value = response.data.data.map(brokenProduct => ({strapi_id: brokenProduct.id, ...brokenProduct.attributes}))
+  })
 }
 
+
 const filterTableItems = (itemList : brokenProductInfo ):boolean  => {
-  console.log(currentOptions.value.filter)
-  return dateFilter(itemList.date) && searchFilter({product_id: itemList.product_id, product_name: itemList.product_name})
+  return searchFilter({product_id: itemList.product_id, product_name: itemList.product_name}) && searchFieldFilter({product_id: itemList.product_id, product_name: itemList.product_name})
 }
 
 const dateFilter = (date : string):boolean =>{
   return currentOptions.value.filter.date? currentOptions.value.filter.date === date : true
 } 
 
-const searchFilter = (search : searchItem) => {
+const searchFilter = (search : searchItem):boolean => {
   return (currentOptions.value.filter.search.product_id? search.product_id.includes(currentOptions.value.filter.search.product_id):true) && (currentOptions.value.filter.search.product_name?  search.product_name.includes(currentOptions.value.filter.search.product_name ):true)
 }
 
+const searchFieldFilter = (search : searchItem):boolean => {
+  return (searchField.value? search.product_id.includes(searchField.value)||  search.product_name.includes(searchField.value):true)
+}
 const updateSearchQuery = (query: searchItem) =>{
-  console.log('update query')
   currentOptions.value.filter.search.product_id = query.product_id
   currentOptions.value.filter.search.product_name = query.product_name
 }
 
-onMounted(brokenProductTableEntries)
+watch(currentOptions.value.filter,brokenProductTableEntries, {immediate: true})
 
 //  const addTag = ()
 </script>
@@ -124,7 +121,7 @@ onMounted(brokenProductTableEntries)
       <div style="min-width: 200px;">
         <AppSelect
          class=""
-         v-model="currentOptions.filter.period"
+         v-model="currentOptions.filter.storehouse"
          >
   
         </AppSelect>
@@ -139,7 +136,7 @@ onMounted(brokenProductTableEntries)
         v-model="currentOptions.filter.date"
       />
       <AppTextField
-        v-model="currentOptions.filter.search.product_id"
+        v-model="searchField"
         append-inner-icon="tabler-search"
       >
         
@@ -192,7 +189,7 @@ onMounted(brokenProductTableEntries)
                             <VPagination
                             variant="text"
                             rounded="circle"
-                            v-model="options.page"
+                            v-model="currentOptions.page"
                             :length="Math.ceil(brokenProducts.filter(filterTableItems).length / currentOptions.itemsPerPage)"
                             :total-visible="$vuetify.display.xs ? 1 : Math.ceil(brokenProducts.filter(filterTableItems).length / currentOptions.itemsPerPage)"
                             >

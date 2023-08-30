@@ -8,7 +8,6 @@ export const useProductListStore = defineStore('productListStore', {
   ,actions: {
     // 👉 Fetch products data
     fetchProducts(label? : number, supplier?: number, restock_date?: string, search?: {member_id: number, phone_num: number, email:string, name: string}) { 
-      console.log(label)
       const query = (label?`?label=${label}` : '') + (supplier? `?supplier=${supplier}` : '') +(restock_date? `?new_restock_date=${restock_date}`:'')
       console.log(`${this.url}${query}`)
       return new Promise<AxiosResponse<Response<apiProductListItem[]>>>(async(resolve, reject) => {
